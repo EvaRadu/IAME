@@ -27,15 +27,25 @@ function startGame() {
 function createScene() {
     let scene = new BABYLON.Scene(engine);
     let ground = createGround(scene);
+
     let freeCamera = createFreeCamera(scene);
+    
 
     let superball = createSuperball(scene);
-
     // second parameter is the target to follow
+
     let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
-
+  
     createLights(scene);
+    scene.enablePhysics();
+
+    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
+	ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
+	//superball.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(1, 0, 1, 0));
+    superball.physicsImpostor.setAngularVelocity(superball.physicsImpostor.getAngularVelocity().scale(.97));
+ 
  
    return scene;
 }
@@ -52,6 +62,7 @@ function createGround(scene) {
         // to be taken into account by collision detection
         ground.checkCollisions = true;
         //groundMaterial.wireframe=true;
+      
     }
     return ground;
 }
@@ -106,7 +117,7 @@ function createSuperball(scene) {
     superball.material = superballMaterial;
 
     // By default the box/superball is in 0, 0, 0, let's change that...
-    superball.position.y = 0.6;
+    superball.position.y = 10;
     superball.speed = 1;
     superball.frontVector = new BABYLON.Vector3(0, 0, 1);
 
