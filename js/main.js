@@ -17,7 +17,7 @@ function startGame() {
     let superball = scene.getMeshByName("heroSuperball");
 
     engine.runRenderLoop(() => {
-        let deltaTime = engine.getDeltaTime(); // remind you something ?
+        let deltaTime = engine.getDeltaTime(); 
 
         superball.move();
         scene.render();
@@ -38,20 +38,19 @@ function createScene() {
     scene.activeCamera = followCamera;
   
     createLights(scene);
+
+    createSky(scene);
+
     scene.enablePhysics();
 
     superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-	ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+	ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
 
-	//superball.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(1, 0, 1, 0));
-    superball.physicsImpostor.setAngularVelocity(superball.physicsImpostor.getAngularVelocity().scale(.97));
- 
- 
    return scene;
 }
 
 function createGround(scene) {
-    const groundOptions = { width:2000, height:2000, subdivisions:20, minHeight:0, maxHeight:100, onReady: onGroundCreated};
+    const groundOptions = { width:2000, height:2000, subdivisions:20, minHeight:0, maxHeight:0, onReady: onGroundCreated};
     //scene is optional and defaults to the current scene
     const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap1.png', groundOptions, scene); 
 
@@ -66,6 +65,19 @@ function createGround(scene) {
     }
     return ground;
 }
+
+function createSky(scene){
+    var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:3000.0}, scene);
+	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
+	skyboxMaterial.backFaceCulling = false;
+	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('images/skybox/skybox', scene);
+	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+	skybox.material = skyboxMaterial;	
+    return skybox;
+}
+
 
 function createLights(scene) {
     // i.e sun light with all light rays parallels, the vector is the direction.
@@ -109,7 +121,7 @@ function createFollowCamera(scene, target) {
 
 let zMovement = 5;
 function createSuperball(scene) {
-    let superball = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 2, segments: 32}, scene);
+    let superball = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
         
     let superballMaterial = new BABYLON.StandardMaterial("superballMaterial", scene);
     superballMaterial.diffuseColor = new BABYLON.Color3.Red;
@@ -226,18 +238,3 @@ function modifySettings() {
 }
 
 
-
-
-function createSky(scene) {
-    // Skybox
-    //skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("images/ciel.png", scene);
-	var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, scene);
-	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
-	skyboxMaterial.backFaceCulling = false;
-	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/skybox", scene);
-	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-	skybox.material = skyboxMaterial;	
-    return skybox;
-}
