@@ -43,11 +43,13 @@ function createScene() {
 
     createSky(scene);
 
-    //scene.enablePhysics();
+    scene.enablePhysics();
+    //scene.enablePhysics(new BABYLON.Vector3(0, -20, 0), new BABYLON.OimoJSPlugin());
 
-    //superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
-	//ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
-
+    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
+    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
+   // superball.setPhysicsState({ impostor: BABYLON.PhysicsEngine.SphereImpostor, mass: 1 });
+   // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
    return scene;
 }
 
@@ -182,6 +184,17 @@ function createSuperBall(scene) {
             superball.frontVector = new BABYLON.Vector3(Math.sin(superball.rotation.y), 0, Math.cos(superball.rotation.y));
         }
     }
+ 
+    // Tentative de jump : 
+    superball.jump = function(){
+        if(!inputStates.space) return;
+
+       // superball.rotation.z += 1000;
+       // superball.frontVector = new BABYLON.Vector3(Math.sin(superball.rotation.z), 0, Math.cos(superball.rotation.z));
+    var force_vector = new BABYLON.Vector3(0, 20, 0);        
+    superball.applyImpulse(force_vector,superball.position);
+
+    }
 
     return superball;
 }
@@ -197,6 +210,8 @@ function createBalls(nbBall,scene){
         spheres[i].position.z = Math.floor(Math.random()*(500-0+1)+0);
 
         spheres[i].position.y = 5;
+
+        //spheres[i].showBoundingBox = true;
 
         sphereMaterials[i] = new BABYLON.StandardMaterial("sphereMaterial" + i, scene);
         spheres[i].material = sphereMaterials[i];
