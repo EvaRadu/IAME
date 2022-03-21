@@ -1,6 +1,7 @@
 let canvas;
 let engine;
 let scene;
+let superball;
 let inputStates = {};
 
 window.onload = startGame;
@@ -31,7 +32,8 @@ function createScene() {
     let freeCamera = createFreeCamera(scene);
     
 
-    let superball = createSuperball(scene);
+    let superball = createSuperBall(scene);
+    let ohterBalls = createBalls(10,scene);
     // second parameter is the target to follow
 
     let followCamera = createFollowCamera(scene, superball);
@@ -41,10 +43,10 @@ function createScene() {
 
     createSky(scene);
 
-    scene.enablePhysics();
+    //scene.enablePhysics();
 
-    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: 0.9 }, scene);
-	ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
+    //superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
+	//ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
 
    return scene;
 }
@@ -120,16 +122,27 @@ function createFollowCamera(scene, target) {
 }
 
 let zMovement = 5;
-function createSuperball(scene) {
+function createSuperBall(scene) {
     let superball = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
-        
+    /*   
     let superballMaterial = new BABYLON.StandardMaterial("superballMaterial", scene);
     superballMaterial.diffuseColor = new BABYLON.Color3.Red;
+  
+
     superballMaterial.emissiveColor = new BABYLON.Color3.Blue;
     superball.material = superballMaterial;
+    */
+
+    let superballMaterial = new BABYLON.StandardMaterial("superballMaterial" , scene);
+    superballMaterial.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+    superballMaterial.reflectivityColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+    superballMaterial.reflectionColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+    superballMaterial.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+    superball.material = superballMaterial;
+
 
     // By default the box/superball is in 0, 0, 0, let's change that...
-    superball.position.y = 10;
+    superball.position.y = 5;
     superball.speed = 1;
     superball.frontVector = new BABYLON.Vector3(0, 0, 1);
 
@@ -172,6 +185,31 @@ function createSuperball(scene) {
 
     return superball;
 }
+
+function createBalls(nbBall,scene){
+    let spheres = [];
+    let sphereMaterials = [];
+
+    for(let i = 0; i < nbBall; i++) {
+        spheres[i] = BABYLON.MeshBuilder.CreateSphere("mySphere" +i, {diameter: 7, segments: 64}, scene);
+      
+        spheres[i].position.x = Math.floor(Math.random()*(500-0+1)+0);
+        spheres[i].position.z = Math.floor(Math.random()*(500-0+1)+0);
+
+        spheres[i].position.y = 5;
+
+        sphereMaterials[i] = new BABYLON.StandardMaterial("sphereMaterial" + i, scene);
+        spheres[i].material = sphereMaterials[i];
+        spheres[i].material.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        spheres[i].material.reflectivityColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        spheres[i].material.reflectionColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        spheres[i].material.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        spheres[i].checkCollisions = true;
+    }
+    return spheres;
+
+}
+
 
 window.addEventListener("resize", () => {
     engine.resize()
