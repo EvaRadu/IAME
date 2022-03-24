@@ -1,3 +1,6 @@
+import Sphere from "./Sphere.js";
+import SuperBall from "./SuperBall.js";
+
 let canvas;
 let engine;
 let scene;
@@ -17,12 +20,10 @@ function startGame() {
 
     let superball = scene.getMeshByName("heroSuperball");
 
-    supe.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: .9 }, scene);
-
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
 
-        superball.move();
+        //superball.move();
         scene.render();
     });
 }
@@ -32,27 +33,27 @@ function createScene() {
     let ground = createGround(scene);
 
     let freeCamera = createFreeCamera(scene);
-    
 
-    let superball = createSuperBall(scene);
-    let ohterBalls = createBalls(10,scene);
+   // let testballMesh = new BABYLON.MeshBuilder.CreateSphere("testBall", {diameter: 7, segments: 64}, scene);
+   // let testball = new SuperBall(testballMesh,1,0.2,scene);
+  
+    scene.enablePhysics();
+    let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
+    let superball = new SuperBall(superballMesh,1,0.2,scene);
+    //console.log(superball.position.y);
+    //let superball = createSuperBall(scene);
+    let otHerBalls = createBalls(10,scene);
     // second parameter is the target to follow
 
-    let followCamera = createFollowCamera(scene, superball);
+    let followCamera = createFollowCamera(scene, superballMesh);
     scene.activeCamera = followCamera;
   
     createLights(scene);
 
     createSky(scene);
 
-    scene.enablePhysics();
-    //scene.enablePhysics(new BABYLON.Vector3(0,-9.8, 0), new BABYLON.CannonJSPlugin());
-    //scene.enablePhysics(new BABYLON.Vector3(0, -20, 0), new BABYLON.OimoJSPlugin());
-
-    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
-    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
-   // superball.setPhysicsState({ impostor: BABYLON.PhysicsEngine.SphereImpostor, mass: 1 });
-   // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
+    
+    
    return scene;
 }
 
@@ -207,6 +208,7 @@ function createSuperBall(scene) {
     return superball;
 }
 
+/*
 function createBalls(nbBall,scene){
     let spheres = [];
     let sphereMaterials = [];
@@ -234,6 +236,18 @@ function createBalls(nbBall,scene){
     return spheres;
 
 }
+*/
+function createBalls(nbBall,scene){
+    let spheresMesh = [];
+    let spheres = [];
+    for(let i = 0; i < nbBall; i++) {
+        spheresMesh[i] = BABYLON.MeshBuilder.CreateSphere("mySphere" +i, {diameter: 7, segments: 64}, scene);
+        spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene);
+    }
+    return spheres;
+}
+
+
 
 
 window.addEventListener("resize", () => {
