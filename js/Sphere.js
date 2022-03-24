@@ -23,6 +23,9 @@ export default class Sphere {
         sphereMesh.checkCollisions = true;
         sphereMesh.showBoundingBox = true;
 
+        //sphereMesh.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
+
+
 
       /*
         if (Sphere.boundingBoxParameters == undefined) {

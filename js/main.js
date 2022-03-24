@@ -38,6 +38,7 @@ function createScene() {
 
     scene.enablePhysics();  
 
+
     let superball = createSuperBall(scene);
 
     let ohterBalls = createBalls(10,scene);
@@ -60,6 +61,7 @@ function createScene() {
    // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
    // superball.setPhysicsState({ impostor: BABYLON.PhysicsEngine.SphereImpostor, mass: 1 });
    // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
+
    return scene;
 }
 
