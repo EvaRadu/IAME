@@ -45,7 +45,7 @@ export default class sphereMesh extends Sphere {
         particleSystem.updateSpeed = 0.005;
 
 
-        sphereMesh.physicsImpostor = new BABYLON.PhysicsImpostor(sphereMesh, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
+        //sphereMesh.physicsImpostor = new BABYLON.PhysicsImpostor(sphereMesh, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
 
         /*particleSystem.physicsImpostor = new BABYLON.PhysicsImpostor(particleSystem, BABYLON.PhysicsImpostor.ParticleImpostor, {mass:10, restitution : 0.9}, scene)
 
