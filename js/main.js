@@ -19,11 +19,12 @@ function startGame() {
     modifySettings();
 
     let superball = scene.getMeshByName("heroSuperball");
+    //let superball = scene.getMeshByName("heroSuperball");
 
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
-
-        //superball.move();
+        console.log(superball.position);
+        superball.move();
         scene.render();
     });
 }
@@ -37,14 +38,15 @@ function createScene() {
    // let testballMesh = new BABYLON.MeshBuilder.CreateSphere("testBall", {diameter: 7, segments: 64}, scene);
    // let testball = new SuperBall(testballMesh,1,0.2,scene);
   
-    let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
-    let superball = new SuperBall(superballMesh,1,0.2,scene);
-    //console.log(superball.position.y);
-    //let superball = createSuperBall(scene);
+    //let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
+    //let superball = new SuperBall(superballMesh,1,0.2,scene);
+
+    let superball = createSuperBall(scene);
+
     let ohterBalls = createBalls(10,scene);
     // second parameter is the target to follow
 
-    let followCamera = createFollowCamera(scene, superballMesh);
+    let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
   
     createLights(scene);
@@ -131,19 +133,47 @@ function createFollowCamera(scene, target) {
 	camera.maxCameraSpeed = 5; // speed limit
 
     return camera;
+
 }
 
 let zMovement = 5;
 function createSuperBall(scene) {
-    let superball = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
-    /*   
-    let superballMaterial = new BABYLON.StandardMaterial("superballMaterial", scene);
-    superballMaterial.diffuseColor = new BABYLON.Color3.Red;
-  
+    let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
+    let superball = new SuperBall(superballMesh,1,0.2,scene);
 
-    superballMaterial.emissiveColor = new BABYLON.Color3.Blue;
-    superball.material = superballMaterial;
-    */
+    superballMesh.move = () => {
+        let yMovement = 0;
+       
+        if (superballMesh.position.y > 2) {
+            zMovement = 0;
+            yMovement = -2;
+        } 
+
+        
+        if(inputStates.up) {
+            superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+        }    
+        if(inputStates.down) {
+            superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
+
+        }  
+        if(inputStates.left) {
+            superballMesh.rotation.y -= 0.02;
+            superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
+        }    
+        if(inputStates.right) {
+            superballMesh.rotation.y += 0.02;
+            superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
+        }
+    }
+ 
+    return superballMesh;
+}
+/*
+let zMovement = 5;
+function createSuperBall(scene) {
+    let superball = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
+
 
     
     let superballMaterial = new BABYLON.StandardMaterial("superballMaterial" , scene);
@@ -212,7 +242,7 @@ function createSuperBall(scene) {
 
     return superball;
 }
-
+*/
 /*
 function createBalls(nbBall,scene){
     let spheres = [];
