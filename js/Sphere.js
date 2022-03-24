@@ -35,4 +35,5 @@ export default class Sphere {
         this.bounder.sphereMesh = this.sphereMesh;
         */
     }
+    
 }
