@@ -17,6 +17,8 @@ function startGame() {
 
     let superball = scene.getMeshByName("heroSuperball");
 
+    supe.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1, restitution: .9 }, scene);
+
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
 
