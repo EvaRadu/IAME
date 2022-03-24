@@ -44,6 +44,7 @@ function createScene() {
     createSky(scene);
 
     scene.enablePhysics();
+    //scene.enablePhysics(new BABYLON.Vector3(0,-9.8, 0), new BABYLON.CannonJSPlugin());
     //scene.enablePhysics(new BABYLON.Vector3(0, -20, 0), new BABYLON.OimoJSPlugin());
 
     superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
@@ -88,6 +89,7 @@ function createLights(scene) {
     let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
 
 }
+
 
 function createFreeCamera(scene) {
     let camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 50, 0), scene);
@@ -135,12 +137,16 @@ function createSuperBall(scene) {
     superball.material = superballMaterial;
     */
 
+    
     let superballMaterial = new BABYLON.StandardMaterial("superballMaterial" , scene);
+    superballMaterial.diffuseTexture = new BABYLON.Texture("images/emoji.png", scene);
     superballMaterial.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
     superballMaterial.reflectivityColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
     superballMaterial.reflectionColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
     superballMaterial.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
     superball.material = superballMaterial;
+
+    superball.showBoundingBox = true;
 
 
     // By default the box/superball is in 0, 0, 0, let's change that...
@@ -220,6 +226,8 @@ function createBalls(nbBall,scene){
         spheres[i].material.reflectionColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
         spheres[i].material.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
         spheres[i].checkCollisions = true;
+
+        spheres[i].showBoundingBox = true;
     }
     return spheres;
 
