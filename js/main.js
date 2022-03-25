@@ -172,7 +172,7 @@ function createSuperBall(scene) {
         if(!inputStates.space) return;
         
         else{
-        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 70, 1), superballMesh.getAbsolutePosition());
+        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 35, 1), superballMesh.getAbsolutePosition());
         }
     
     }
