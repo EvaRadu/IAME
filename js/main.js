@@ -5,7 +5,10 @@ let canvas;
 let engine;
 let scene;
 let superball;
+let otherBallsMesh;
 let ground;
+let remainingBalls = 80;
+let touchedBalls = 0;
 let inputStates = {};
 
 window.onload = startGame;
@@ -28,7 +31,6 @@ function startGame() {
         superball.move();
         //superball.move2();
         superball.jump();
-        detectCollision(scene);
         scene.render();
     });
 }
@@ -44,7 +46,7 @@ function createScene() {
 
     let superball = createSuperBall(scene);
 
-    let ohterBalls = createBalls(80,scene);
+    let otherBalls = createBalls(remainingBalls,scene);
     // second parameter is the target to follow
 
 
@@ -161,9 +163,12 @@ function createSuperBall(scene) {
         //console.log(superballMesh.rotation.y);
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            detectCollision(scene);
+
         }    
         if(inputStates.down) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
+            detectCollision(scene);
 
         }  
         if(inputStates.left) {
@@ -234,18 +239,26 @@ function createBalls(nbBall,scene){
 
         spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene);
     }
-
+    otherBallsMesh = spheresMesh;
     return spheres;
 }
 
 function detectCollision(scene){
     
     let player = scene.getMeshByName("heroSuperball");
-    for(let i = 0; i < 80; i++){
-        let ball =  scene.getMeshByName("mySphere"+i);
+
+
+
+    for(let i = 0; i < otherBallsMesh.length ; i++){
+        let ball =  otherBallsMesh[i];
         if(player.intersectsMesh(ball)){
             player.material = ball.material;
-            console.log("intersection");
+            otherBallsMesh.splice(i,1);  
+            ball.dispose();
+            remainingBalls--;
+            touchedBalls++;
+            console.log(remainingBalls);
+            console.log(touchedBalls);
         }
     }
    
