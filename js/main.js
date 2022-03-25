@@ -19,6 +19,7 @@ function startGame() {
     // out of the game window)
     modifySettings();
 
+
     let superball = scene.getMeshByName("heroSuperball");
     //let superball = scene.getMeshByName("heroSuperball");
 
@@ -27,6 +28,7 @@ function startGame() {
         superball.move();
         //superball.move2();
         superball.jump();
+        detectCollision(scene);
         scene.render();
     });
 }
@@ -48,6 +50,8 @@ function createScene() {
 
     let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
+
+    
   
     createLights(scene);
 
@@ -139,6 +143,7 @@ function createFollowCamera(scene, target) {
 
 }
 
+
 let zMovement = 5;
 function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
@@ -153,7 +158,7 @@ function createSuperBall(scene) {
             yMovement = -2;
         } */
 
-        
+        //console.log(superballMesh.rotation.y);
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
         }    
@@ -195,7 +200,7 @@ function createSuperBall(scene) {
         }
 
         if(!superballMesh.canJump){ 
-            console.log("notjump2");
+            //console.log("notjump2");
             return ; 
         }
 
@@ -211,7 +216,7 @@ function createSuperBall(scene) {
   
         
         
-        console.log("jump");
+        //console.log("jump");
     }
     
     
@@ -229,8 +234,26 @@ function createBalls(nbBall,scene){
 
         spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene);
     }
+
     return spheres;
 }
+
+function detectCollision(scene){
+    
+    let player = scene.getMeshByName("heroSuperball");
+    for(let i = 0; i < 80; i++){
+        let ball =  scene.getMeshByName("mySphere"+i);
+        if(player.intersectsMesh(ball)){
+            player.material = ball.material;
+            console.log("intersection");
+        }
+    }
+   
+       
+}
+
+
+
 
 
 
