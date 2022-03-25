@@ -16,12 +16,12 @@ export default class Sphere {
         sphereMesh.Sphere = this;
 
         //this.sphereMesh.scaling = new BABYLON.Vector3(0.2  , 0.2, 0.2);
-        sphereMesh.position.x = Math.floor(Math.random()*(500-0+1)+0);
-        sphereMesh.position.z = Math.floor(Math.random()*(500-0+1)+0);
+        sphereMesh.position.x = Math.floor(Math.random()*(500-(-500)+1)+(-500));
+        sphereMesh.position.z = Math.floor(Math.random()*(500-(-500)+1)+(-500));
         sphereMesh.position.y = 4;
 
         sphereMesh.checkCollisions = true;
-        sphereMesh.showBoundingBox = true;
+        //sphereMesh.showBoundingBox = true;
 
         //sphereMesh.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
 
