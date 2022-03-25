@@ -144,6 +144,7 @@ function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene);
 
+
     superballMesh.move = () => {
         let yMovement = 0;
        /*
@@ -175,9 +176,17 @@ function createSuperBall(scene) {
 
 
     
+/*
+    if (superballMesh.intersectsMesh(ground, true)) {
+        superballMesh.canJump = true;
+    }
+    else{
+        superballMesh.canJump = false;
+    }
+    */
 
     superballMesh.canJump = true;
-    superballMesh.jumpAfter = 0.1; // in seconds
+    superballMesh.jumpAfter = 2; // in seconds
 
     superballMesh.jump = function(){
 
@@ -191,7 +200,7 @@ function createSuperBall(scene) {
         }
 
         else{
-        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 10, 1), superballMesh.getAbsolutePosition());
+        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
 
         superballMesh.canJump = false;
         
