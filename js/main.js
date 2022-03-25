@@ -15,6 +15,7 @@ window.onload = startGame;
 
 function startGame() {
     canvas = document.querySelector("#myCanvas");
+    
     engine = new BABYLON.Engine(canvas, true);
     scene = createScene();
 
@@ -24,8 +25,8 @@ function startGame() {
 
 
     let superball = scene.getMeshByName("heroSuperball");
-    //let superball = scene.getMeshByName("heroSuperball");
 
+   
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
         superball.move();
@@ -69,7 +70,13 @@ function createScene() {
    // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
    // superball.setPhysicsState({ impostor: BABYLON.PhysicsEngine.SphereImpostor, mass: 1 });
    // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
-
+    /*var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    var textblock = new BABYLON.GUI.TextBlock();
+    textblock.text = "TEST";
+    textblock.fontSize = 24;
+    textblock.top = -100;
+    textblock.color = "white";
+    advancedTexture.addControl(textblock);*/
    return scene;
 }
 
@@ -243,28 +250,28 @@ function createBalls(nbBall,scene){
     return spheres;
 }
 
+
 function detectCollision(scene){
     
     let player = scene.getMeshByName("heroSuperball");
 
-
-
     for(let i = 0; i < otherBallsMesh.length ; i++){
         let ball =  otherBallsMesh[i];
+
         if(player.intersectsMesh(ball)){
+
             player.material = ball.material;
             otherBallsMesh.splice(i,1);  
             ball.dispose();
             remainingBalls--;
             touchedBalls++;
-            console.log(remainingBalls);
-            console.log(touchedBalls);
+
+            console.log("Balles restantes : " + remainingBalls);
+            console.log("Balles touchées : " + touchedBalls);
         }
     }
-   
        
 }
-
 
 
 
