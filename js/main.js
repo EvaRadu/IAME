@@ -12,6 +12,7 @@ let remainingBalls = 80;
 let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
+var textblock;
 
 window.onload = startGame;
 
@@ -42,7 +43,7 @@ function createScene() {
 
     let freeCamera = createFreeCamera(scene);
 
-    scene.enablePhysics(new BABYLON.Vector3(0,-9.8, 0), new BABYLON.CannonJSPlugin());
+    scene.enablePhysics();
 
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -65,12 +66,21 @@ function createScene() {
         button1.dispose();
     });
     advancedTexture.addControl(button1); 
+
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
+    textblock = new BABYLON.GUI.TextBlock();
+    textblock.text = "Remaining balls : " + remainingBalls;
+    textblock.fontSize = 24;
+    textblock.top = -400;
+    textblock.left = 700;
+    textblock.color = "black";
+    advancedTexture.addControl(textblock);
+
+
     let superball = createSuperBall(scene);
 
     let otherBalls = createBalls(remainingBalls,scene);
     let villainBalls = createVillains(remainingBalls/2, scene);
-    // second parameter is the target to follow
-
 
     let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
@@ -81,23 +91,8 @@ function createScene() {
 
     createSky(scene);
 
-
-    //scene.enablePhysics(new BABYLON.Vector3(0,-9.8, 0), new BABYLON.CannonJSPlugin());
-    //scene.enablePhysics(new BABYLON.Vector3(0, -20, 0), new BABYLON.OimoJSPlugin());
-    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
-    ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
+   superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
     
-   // superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 6000, restitution: 0.9 }, scene);
-   // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
-   // superball.setPhysicsState({ impostor: BABYLON.PhysicsEngine.SphereImpostor, mass: 1 });
-   // ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.PlaneImpostor, { mass: 0, restitution: 0.9 }, scene);
-    /*var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    var textblock = new BABYLON.GUI.TextBlock();
-    textblock.text = "TEST";
-    textblock.fontSize = 24;
-    textblock.top = -100;
-    textblock.color = "white";
-    advancedTexture.addControl(textblock);*/
    return scene;
 }
 
@@ -113,6 +108,8 @@ function createGround(scene) {
         // to be taken into account by collision detection
         ground.checkCollisions = true;
         //groundMaterial.wireframe=true;
+        ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+
       
     }
     return ground;
@@ -191,7 +188,7 @@ function createSuperBall(scene) {
         //console.log(superballMesh.rotation.y);
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            console.log(superballMesh.speed);
+            //console.log(superballMesh.speed);
             detectCollision(scene);
 
         }    
@@ -239,7 +236,9 @@ function createSuperBall(scene) {
         }
 
         else{
-        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
+            console.log("jump");
+
+        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 70000000000000, 1), superballMesh.getAbsolutePosition());
 
         superballMesh.canJump = false;
         
@@ -306,6 +305,8 @@ function detectCollision(scene){
             }
             console.log("Balles restantes : " + remainingBalls);
             console.log("Balles touchées : " + touchedBalls);
+            textblock.text = "Remaining balls : " + remainingBalls;
+
 
         }
     }
