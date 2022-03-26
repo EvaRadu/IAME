@@ -10,6 +10,7 @@ let ground;
 let remainingBalls = 80;
 let touchedBalls = 0;
 let inputStates = {};
+let bool = false;
 
 window.onload = startGame;
 
@@ -26,14 +27,12 @@ function startGame() {
 
     let superball = scene.getMeshByName("heroSuperball");
 
-   
-    engine.runRenderLoop(() => {
-        let deltaTime = engine.getDeltaTime(); 
-        superball.move();
-        //superball.move2();
-        superball.jump();
-        scene.render();
-    });
+    if (!bool) {
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+    }
+    
 }
 
 function createScene() {
@@ -45,6 +44,26 @@ function createScene() {
     scene.enablePhysics(new BABYLON.Vector3(0,-9.8, 0), new BABYLON.CannonJSPlugin());
 
 
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "LET'S PLAY !");
+    button1.width = "150px"
+    button1.height = "40px";
+    button1.color = "white";
+    button1.cornerRadius = 20;
+    button1.background = "pink";
+    button1.onPointerUpObservable.add(function() {
+        bool = true;
+        engine.runRenderLoop(() => {
+            let deltaTime = engine.getDeltaTime(); 
+            superball.move();
+            //superball.move2();
+            superball.jump();
+            scene.render();
+        });
+        button1.dispose();
+    });
+    advancedTexture.addControl(button1); 
     let superball = createSuperBall(scene);
 
     let otherBalls = createBalls(remainingBalls,scene);
