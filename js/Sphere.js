@@ -1,5 +1,5 @@
 export default class Sphere {
-    constructor(sphereMesh, id, scaling, scene) {
+    constructor(sphereMesh, id, scaling, scene, texture) {
         this.sphereMesh = sphereMesh;
         this.id = id;
         this.scene = scene;
@@ -14,7 +14,12 @@ export default class Sphere {
         sphereMaterial.metallic = 5;
         sphereMaterial.roughness = 0.5;    
         sphereMaterial.specularPower = 16;
-        //sphereMaterial.diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", this.scene);
+        
+        
+        if (texture != null) {
+            sphereMaterial.diffuseTexture = new BABYLON.Texture(texture, this.scene); 
+        }
+        
         //sphereMaterial.diffuseTexture.level = 2;
 
         sphereMaterial.alpha = Math.random()*(1-0.7+1)+0.7; // niveau de transparence

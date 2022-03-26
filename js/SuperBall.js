@@ -1,8 +1,8 @@
 import Sphere from "./Sphere.js";
 
 export default class sphereMesh extends Sphere {
-    constructor(sphereMesh, id, scaling, scene){
-        super(sphereMesh,id,scaling,scene);
+    constructor(sphereMesh, id, scaling, scene, texture){
+        super(sphereMesh,id,scaling,scene,texture);
         sphereMesh.position.x = 0;
         sphereMesh.position.y = 4;     
         sphereMesh.position.z = 0;

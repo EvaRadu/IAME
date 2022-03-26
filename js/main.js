@@ -6,6 +6,7 @@ let engine;
 let scene;
 let superball;
 let otherBallsMesh;
+let villainBallsMesh;
 let ground;
 let remainingBalls = 80;
 let touchedBalls = 0;
@@ -67,6 +68,7 @@ function createScene() {
     let superball = createSuperBall(scene);
 
     let otherBalls = createBalls(remainingBalls,scene);
+    let villainBalls = createVillains(remainingBalls/2, scene);
     // second parameter is the target to follow
 
 
@@ -175,7 +177,7 @@ function createFollowCamera(scene, target) {
 let zMovement = 5;
 function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
-    let superball = new SuperBall(superballMesh,1,0.2,scene);
+    let superball = new SuperBall(superballMesh,1,0.2,scene, null);
 
 
     superballMesh.move = () => {
@@ -189,6 +191,7 @@ function createSuperBall(scene) {
         //console.log(superballMesh.rotation.y);
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            console.log(superballMesh.speed);
             detectCollision(scene);
 
         }    
@@ -263,12 +266,25 @@ function createBalls(nbBall,scene){
         spheresMesh[i] = BABYLON.MeshBuilder.CreateSphere("mySphere" +i, {diameter: 7, segments: 64}, scene);
         spheresMesh[i].physicsImpostor = new BABYLON.PhysicsImpostor(spheresMesh[i], BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.01, restitution: 0.2 }, scene);
 
-        spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene);
+        spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene, "images/spheres/white.jpg");
     }
     otherBallsMesh = spheresMesh;
     return spheres;
 }
 
+function createVillains(nbBall,scene){
+    let spheresMesh = [];
+    let spheres = [];
+    for(let i = 0; i < nbBall; i++) {
+        spheresMesh[i] = BABYLON.MeshBuilder.CreateSphere("villain" +i, {diameter: 7, segments: 64}, scene);
+        spheresMesh[i].physicsImpostor = new BABYLON.PhysicsImpostor(spheresMesh[i], BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.01, restitution: 0.2 }, scene);
+        //sphereMesh[i].diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", this.scene);
+
+        spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene, "images/spheres/snow.jpg");
+    }
+    villainBallsMesh = spheresMesh;
+    return spheres;
+}
 
 function detectCollision(scene){
     
@@ -285,8 +301,29 @@ function detectCollision(scene){
             remainingBalls--;
             touchedBalls++;
 
+            if (player.speed<10) {
+                player.speed += 0.1;
+            }
             console.log("Balles restantes : " + remainingBalls);
             console.log("Balles touchées : " + touchedBalls);
+
+        }
+    }
+
+    for(let i = 0; i < villainBallsMesh.length ; i++){
+        let ball =  villainBallsMesh[i];
+
+        if(player.intersectsMesh(ball)){
+
+            //player.material = ball.material;
+            touchedBalls--;
+            
+            player.speed = 1;
+
+            console.log("MALUS");
+
+
+           
         }
     }
        
