@@ -6,13 +6,26 @@ export default class Sphere {
         this.scaling = scaling;
 
         let sphereMaterial = new BABYLON.StandardMaterial("sphereMaterial" , scene);
+        
+        //var sphereMaterial = new BABYLON.PBRMaterial("sphereMaterial", this.scene);
+        //sphereMaterial.subSurface.isRefractionEnabled = true;
+
+        sphereMaterial.glossiness = 3;
+        sphereMaterial.metallic = 5;
+        sphereMaterial.roughness = 0.5;    
+        sphereMaterial.specularPower = 16;
+        //sphereMaterial.diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", this.scene);
+        //sphereMaterial.diffuseTexture.level = 2;
+
+        sphereMaterial.alpha = Math.random()*(1-0.7+1)+0.7; // niveau de transparence
+        
         sphereMaterial.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
         sphereMaterial.reflectivityColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
         sphereMaterial.reflectionColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
         sphereMaterial.albedoColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+
         sphereMesh.material = sphereMaterial;
-        
-            
+                    
         sphereMesh.Sphere = this;
 
         //this.sphereMesh.scaling = new BABYLON.Vector3(0.2  , 0.2, 0.2);
