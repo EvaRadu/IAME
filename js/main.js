@@ -13,6 +13,7 @@ let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
 var textblock;
+let gameStatus = true;
 
 window.onload = startGame;
 
@@ -37,6 +38,27 @@ function startGame() {
     
 }
 
+function createTimer(i) { // i seconds
+    // GUI
+    var advancedTextureTime = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UITime");
+
+    var textBlock = new BABYLON.GUI.TextBlock("text", new String(i));   
+
+    advancedTextureTime.addControl(textBlock);
+
+    var timer = window.setInterval(() => {
+        i--;
+        textBlock.text = (new String(i)) + " seconds";
+        if (i <= 0) {
+            gameStatus = false;
+            window.clearInterval(timer);
+            textBlock.dispose();
+            advancedTexture.dispose();
+        }
+    }, 1000)
+    return timer;
+}
+
 function createScene() {
     let scene = new BABYLON.Scene(engine);
     let ground = createGround(scene);
@@ -48,6 +70,8 @@ function createScene() {
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
+    
+
     var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "LET'S PLAY !");
     button1.width = "150px"
     button1.height = "40px";
@@ -56,12 +80,30 @@ function createScene() {
     button1.background = "pink";
     button1.onPointerUpObservable.add(function() {
         bool = true;
+        createTimer(10);
         engine.runRenderLoop(() => {
             let deltaTime = engine.getDeltaTime(); 
-            superball.move();
-            //superball.move2();
-            superball.jump();
-            scene.render();
+            if (gameStatus) {
+                superball.move();
+                //superball.move2();
+                superball.jump();
+                scene.render();
+            }
+            else {
+                var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
+                textblock = new BABYLON.GUI.TextBlock();
+                
+                if (remainingBalls <= otherBalls.length/2) {
+                    textblock.text = "Congrats : you win !";
+                } else {
+                    textblock.text = "Mwahaha : you lost !";
+                }
+                textblock.fontSize = 24;
+                textblock.top = 200;
+                textblock.left = 200;
+                textblock.color = "black";
+                advancedTextureGameOver.addControl(textblock);
+            }
         });
         button1.dispose();
     });
