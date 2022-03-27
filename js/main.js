@@ -150,6 +150,9 @@ function createScene() {
     let scene = new BABYLON.Scene(engine);
     let ground = createGround(scene);
 
+    var music = new BABYLON.Sound("backgroundMusic", "sounds/sound2.mp3", scene, null, { loop: true, autoplay: true });
+
+
     let freeCamera = createFreeCamera(scene);
 
     scene.enablePhysics();
