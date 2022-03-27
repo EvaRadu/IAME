@@ -8,7 +8,8 @@ let superball;
 let otherBallsMesh;
 let villainBallsMesh;
 let ground;
-let remainingBalls = 80;
+var music;
+let remainingBalls = 50;
 let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
@@ -80,7 +81,7 @@ function createButtonLetsPlay() {
     button1.onPointerUpObservable.add(function() {
         button1.dispose();
         bool = true;
-        createTimer(5); 
+        createTimer(90); 
     });
     advancedTexture.addControl(button1);
     return button1;
@@ -128,7 +129,11 @@ function createTimer(i) { // i seconds
     // GUI
     var advancedTextureTime = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UITime");
 
-    var textBlock = new BABYLON.GUI.TextBlock("text", new String(i) + " seconds");   
+    var textBlock = new BABYLON.GUI.TextBlock("text", new String(i) + " seconds");
+    textBlock.color = "black";
+    textBlock.fontSize = 24;   
+    textBlock.top = -275;
+    textBlock.left = 0;
 
     advancedTextureTime.addControl(textBlock);
 
@@ -150,7 +155,7 @@ function createScene() {
     let scene = new BABYLON.Scene(engine);
     let ground = createGround(scene);
 
-    var music = new BABYLON.Sound("backgroundMusic", "sounds/sound2.mp3", scene, null, { loop: true, autoplay: true });
+    music = new BABYLON.Sound("backgroundMusic", "sounds/sound1.mp3", scene, null, { loop: true, autoplay: true });
 
 
     let freeCamera = createFreeCamera(scene);
@@ -189,7 +194,7 @@ function createGround(scene) {
 
     function onGroundCreated() {
         const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol11.jpg");
+        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol10.jpg");
         groundMaterial.diffuseTexture.uScale = 100;
         groundMaterial.diffuseTexture.vScale = 100;
         ground.material = groundMaterial;
@@ -417,7 +422,14 @@ function detectCollision(scene){
             //console.log("Balles restantes : " + remainingBalls);
             //console.log("Balles touchées : " + touchedBalls);
             textblock.text = "Remaining balls : " + remainingBalls;
-
+            
+            /*
+            var winSound = new BABYLON.Sound("winSound", "sounds/win.wav", scene);
+            music.pause();
+            winSound.play();
+            music.play();
+            */
+            
 
         }
     }
