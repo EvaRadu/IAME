@@ -22,6 +22,7 @@ function startGame() {
     engine = new BABYLON.Engine(canvas, true);
     scene = createScene();
 
+
     // modify some default settings (i.e pointer events to prevent cursor to go 
     // out of the game window)
     modifySettings();
@@ -38,13 +39,24 @@ function startGame() {
 }
 
 function createScene() {
+    
     let scene = new BABYLON.Scene(engine);
+
+    scene.enablePhysics();
     let ground = createGround(scene);
 
     let freeCamera = createFreeCamera(scene);
 
-    scene.enablePhysics();
+    let superball = createSuperBall(scene);
 
+    let otherBalls = createBalls(remainingBalls,scene);
+    let villainBalls = createVillains(remainingBalls/2, scene);
+
+    let followCamera = createFollowCamera(scene, superball);
+    scene.activeCamera = followCamera;
+
+
+    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:false,friction:0.8, restitution: 0.2 }, scene);
 
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
@@ -77,13 +89,6 @@ function createScene() {
     advancedTexture.addControl(textblock);
 
 
-    let superball = createSuperBall(scene);
-
-    let otherBalls = createBalls(remainingBalls,scene);
-    let villainBalls = createVillains(remainingBalls/2, scene);
-
-    let followCamera = createFollowCamera(scene, superball);
-    scene.activeCamera = followCamera;
 
     
   
@@ -91,7 +96,6 @@ function createScene() {
 
     createSky(scene);
 
-   superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
     
    return scene;
 }
@@ -99,11 +103,13 @@ function createScene() {
 function createGround(scene) {
     const groundOptions = { width:2000, height:2000, subdivisions:20, minHeight:0, maxHeight:0, onReady: onGroundCreated};
     //scene is optional and defaults to the current scene
-    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap1.png', groundOptions, scene); 
+    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
 
     function onGroundCreated() {
         const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol5.jpg");
+        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol11.jpg");
+        groundMaterial.diffuseTexture.uScale = 100;
+        groundMaterial.diffuseTexture.vScale = 100;
         ground.material = groundMaterial;
         // to be taken into account by collision detection
         ground.checkCollisions = true;
@@ -175,35 +181,62 @@ let zMovement = 5;
 function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
-
-
+    
     superballMesh.move = () => {
-        let yMovement = 0;
-       /*
-        if (superballMesh.position.y > 2) {
-            zMovement = 0;
-            yMovement = -2;
+       
+        /*
+        if (superballMesh.rotationQuaternion.y > 2) {
+            superballMesh.rotationQuaternion.z = 0;
+            superballMesh.rotationQuaternion.y = -2;
         } */
 
+        //console.log("x " + superballMesh.rotationQuaternion.x + " y " + superballMesh.rotationQuaternion.y + " z " + superballMesh.rotationQuaternion.z);
         //console.log(superballMesh.rotation.y);
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            //console.log(superballMesh.speed);
+
+            //superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0,0,4));
+            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(superballMesh.speed, 0, 0, 0));
+
+
             detectCollision(scene);
 
         }    
         if(inputStates.down) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
+            
+            //superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0,0,-4));
+            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(-superballMesh.speed, 0, 0, 0));
+
             detectCollision(scene);
 
         }  
         if(inputStates.left) {
             superballMesh.rotation.y -= 0.02;
             superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
+           
+           /*
+            superballMesh.rotationQuaternion.y -= 0.02;
+            superballMesh.rotationQuaternion.x = Math.sin(superballMesh.rotationQuaternion.y);
+            superballMesh.rotationQuaternion.z = Math.cos(superballMesh.rotationQuaternion.y);
+            //superballMesh.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(1, 0 -1), Math.PI / 6);
+
+            superballMesh.frontVector = new BABYLON.Vector3( Math.sin(superballMesh.rotationQuaternion.y),0, Math.cos(superballMesh.rotationQuaternion.y));
+        */
         }    
         if(inputStates.right) {
             superballMesh.rotation.y += 0.02;
             superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
+            
+            /*
+            superballMesh.rotationQuaternion.y += 0.02;
+            superballMesh.rotationQuaternion.x = Math.sin(superballMesh.rotationQuaternion.y);
+            superballMesh.rotationQuaternion.z = Math.cos(superballMesh.rotationQuaternion.y);
+
+            //superballMesh.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(1, 0, -1), -Math.PI / 6);
+
+            superballMesh.frontVector = new BABYLON.Vector3( Math.sin(superballMesh.rotationQuaternion.y),0, Math.cos(superballMesh.rotationQuaternion.y));
+      */
         }
 
         superball.updateParticles();
@@ -251,6 +284,8 @@ function createSuperBall(scene) {
         
         //console.log("jump");
     }
+    detectCollision(scene);
+
     
     
     }
@@ -303,8 +338,8 @@ function detectCollision(scene){
             if (player.speed<10) {
                 player.speed += 0.1;
             }
-            console.log("Balles restantes : " + remainingBalls);
-            console.log("Balles touchées : " + touchedBalls);
+            //console.log("Balles restantes : " + remainingBalls);
+            //console.log("Balles touchées : " + touchedBalls);
             textblock.text = "Remaining balls : " + remainingBalls;
 
 
@@ -321,7 +356,7 @@ function detectCollision(scene){
             
             player.speed = 1;
 
-            console.log("MALUS");
+            //console.log("MALUS");
 
 
            
