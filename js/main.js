@@ -13,13 +13,15 @@ let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
 var textblock;
-let gameStatus = true;
+let isPlaying = true;
+let startButton;
+let restartButton;
+let boolOnRestartButton = false;
 
 window.onload = startGame;
 
 function startGame() {
     canvas = document.querySelector("#myCanvas");
-    
     engine = new BABYLON.Engine(canvas, true);
     scene = createScene();
 
@@ -27,33 +29,149 @@ function startGame() {
     // out of the game window)
     modifySettings();
 
+    superball = scene.getMeshByName("heroSuperball");
+    startButton = createButtonLetsPlay();
 
-    let superball = scene.getMeshByName("heroSuperball");
-
-    if (!bool) {
-        engine.runRenderLoop(() => {
-            scene.render();
-        });
-    }
     
+        /*engine.runRenderLoop(() => {
+            let deltaTime = engine.getDeltaTime(); 
+            /*if (gameStatus) {
+                superball.move();
+                superball.jump();
+                scene.render();
+            }
+            else {
+                
+
+                /*var advancedTextureRestart = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("RestartUI");
+
+                var buttonReStart = BABYLON.GUI.Button.CreateSimpleButton("but2", "Another Round ?");
+                buttonReStart.width = "150px"
+                buttonReStart.height = "40px";
+                buttonReStart.color = "white";
+                buttonReStart.cornerRadius = 20;
+                buttonReStart.background = "purple";
+                buttonReStart.onPointerUpObservable.add(function() { 
+                    buttonReStart.dispose();
+                    textblock.dispose();
+                    scene.dispose();
+                    startGame(); }
+                );
+                advancedTextureRestart.addControl(buttonReStart);
+            }*/
+
+        //})
+    //});
+
+
+    engine.runRenderLoop(() => {
+        let deltaTime = engine.getDeltaTime(); 
+            if (bool) {
+                if ((isPlaying) && (bool)) {
+                    superball.move();
+                    superball.jump();
+                    //scene.render();
+                }
+                else {
+                    var textblockWL = WinOrLose();
+                    reStartButton = reStartButton();
+                    //scene = createScene(); 
+                    //startButton = createButtonLetsPlay();
+     
+                    //scene.render();
+                }
+            }
+            scene.render();
+            
+    });
+    
+}
+
+function erase() {
+    scene.dispose();
+    //superball.dispose();
+    otherBallsMesh = null;
+    villainBallsMesh = null;
+    remainingBalls = 80;
+    touchedBalls = 0;
+    inputStates = {};
+    bool = false;
+    isPlaying = false;
+}
+
+function createButtonLetsPlay() {
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "LET'S PLAY !");
+    button1.width = "150px"
+    button1.height = "40px";
+    button1.color = "white";
+    button1.cornerRadius = 20;
+    button1.background = "pink";
+    button1.onPointerUpObservable.add(function() {
+        button1.dispose();
+        bool = true;
+        createTimer(5); 
+    });
+    advancedTexture.addControl(button1);
+    return button1;
+}
+
+function WinOrLose() {
+    var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
+    textblock = new BABYLON.GUI.TextBlock();           
+    if (remainingBalls <= otherBallsMesh.length/2) {
+        textblock.text = "Congrats : you win !";
+    } else {
+        textblock.text = "Mwahaha : you lost !";
+    }
+    textblock.fontSize = 24;
+    textblock.top = 200;
+    textblock.left = 200;
+    textblock.color = "black";
+    advancedTextureGameOver.addControl(textblock);
+    return textblock;
+}
+
+function reStartButton() {
+
+    var advancedTextureRestart = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("RestartUI");
+
+    var buttonReStart = BABYLON.GUI.Button.CreateSimpleButton("but2", "Another Round ?");
+    buttonReStart.width = "150px"
+    buttonReStart.height = "40px";
+    buttonReStart.color = "white";
+    buttonReStart.cornerRadius = 20;
+    buttonReStart.background = "purple";
+    buttonReStart.onPointerUpObservable.add(function() { 
+        buttonReStart.dispose();
+        textblock.dispose();
+        erase();
+        scene= createScene();
+        startButton = createButtonLetsPlay();}
+        );
+    advancedTextureRestart.addControl(buttonReStart);
+    return reStartButton;
+
 }
 
 function createTimer(i) { // i seconds
     // GUI
     var advancedTextureTime = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UITime");
 
-    var textBlock = new BABYLON.GUI.TextBlock("text", new String(i));   
+    var textBlock = new BABYLON.GUI.TextBlock("text", new String(i) + " seconds");   
 
     advancedTextureTime.addControl(textBlock);
 
+    isPlaying = true;
     var timer = window.setInterval(() => {
         i--;
-        textBlock.text = (new String(i)) + " seconds";
+        textBlock.text = new String(i) + " seconds";
         if (i <= 0) {
-            gameStatus = false;
+            isPlaying = false;
             window.clearInterval(timer);
             textBlock.dispose();
-            advancedTexture.dispose();
+            advancedTextureTime.dispose();
         }
     }, 1000)
     return timer;
@@ -67,48 +185,6 @@ function createScene() {
 
     scene.enablePhysics();
 
-
-    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
-    
-
-    var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "LET'S PLAY !");
-    button1.width = "150px"
-    button1.height = "40px";
-    button1.color = "white";
-    button1.cornerRadius = 20;
-    button1.background = "pink";
-    button1.onPointerUpObservable.add(function() {
-        bool = true;
-        createTimer(10);
-        engine.runRenderLoop(() => {
-            let deltaTime = engine.getDeltaTime(); 
-            if (gameStatus) {
-                superball.move();
-                //superball.move2();
-                superball.jump();
-                scene.render();
-            }
-            else {
-                var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
-                textblock = new BABYLON.GUI.TextBlock();
-                
-                if (remainingBalls <= otherBalls.length/2) {
-                    textblock.text = "Congrats : you win !";
-                } else {
-                    textblock.text = "Mwahaha : you lost !";
-                }
-                textblock.fontSize = 24;
-                textblock.top = 200;
-                textblock.left = 200;
-                textblock.color = "black";
-                advancedTextureGameOver.addControl(textblock);
-            }
-        });
-        button1.dispose();
-    });
-    advancedTexture.addControl(button1); 
-
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
     textblock = new BABYLON.GUI.TextBlock();
     textblock.text = "Remaining balls : " + remainingBalls;
@@ -118,7 +194,6 @@ function createScene() {
     textblock.color = "black";
     advancedTexture.addControl(textblock);
 
-
     let superball = createSuperBall(scene);
 
     let otherBalls = createBalls(remainingBalls,scene);
@@ -126,14 +201,11 @@ function createScene() {
 
     let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
-
-    
   
     createLights(scene);
-
     createSky(scene);
 
-   superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
+    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
     
    return scene;
 }
@@ -151,8 +223,6 @@ function createGround(scene) {
         ground.checkCollisions = true;
         //groundMaterial.wireframe=true;
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-
-      
     }
     return ground;
 }
@@ -169,13 +239,10 @@ function createSky(scene){
     return skybox;
 }
 
-
 function createLights(scene) {
     // i.e sun light with all light rays parallels, the vector is the direction.
     let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
-
 }
-
 
 function createFreeCamera(scene) {
     let camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 50, 0), scene);
@@ -209,7 +276,6 @@ function createFollowCamera(scene, target) {
 	camera.maxCameraSpeed = 5; // speed limit
 
     return camera;
-
 }
 
 
