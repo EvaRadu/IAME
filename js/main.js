@@ -71,8 +71,8 @@ function createScene() {
     textblock = new BABYLON.GUI.TextBlock();
     textblock.text = "Remaining balls : " + remainingBalls;
     textblock.fontSize = 24;
-    textblock.top = -400;
-    textblock.left = 700;
+    textblock.top = -275;
+    textblock.left = 410;
     textblock.color = "black";
     advancedTexture.addControl(textblock);
 
@@ -238,7 +238,7 @@ function createSuperBall(scene) {
         else{
             console.log("jump");
 
-        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 70000000000000, 1), superballMesh.getAbsolutePosition());
+        superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
 
         superballMesh.canJump = false;
         
