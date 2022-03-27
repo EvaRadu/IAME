@@ -3,9 +3,9 @@ import Sphere from "./Sphere.js";
 export default class sphereMesh extends Sphere {
     constructor(sphereMesh, id, scaling, scene, texture){
         super(sphereMesh,id,scaling,scene,texture);
-        sphereMesh.position.x = 30;
+        sphereMesh.position.x = 0;
         sphereMesh.position.y = 4;     
-        sphereMesh.position.z = 180;
+        sphereMesh.position.z = 0;
         sphereMesh.speed = 1;
         sphereMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
 
