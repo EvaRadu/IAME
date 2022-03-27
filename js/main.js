@@ -32,38 +32,6 @@ function startGame() {
     superball = scene.getMeshByName("heroSuperball");
     startButton = createButtonLetsPlay();
 
-    
-        /*engine.runRenderLoop(() => {
-            let deltaTime = engine.getDeltaTime(); 
-            /*if (gameStatus) {
-                superball.move();
-                superball.jump();
-                scene.render();
-            }
-            else {
-                
-
-                /*var advancedTextureRestart = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("RestartUI");
-
-                var buttonReStart = BABYLON.GUI.Button.CreateSimpleButton("but2", "Another Round ?");
-                buttonReStart.width = "150px"
-                buttonReStart.height = "40px";
-                buttonReStart.color = "white";
-                buttonReStart.cornerRadius = 20;
-                buttonReStart.background = "purple";
-                buttonReStart.onPointerUpObservable.add(function() { 
-                    buttonReStart.dispose();
-                    textblock.dispose();
-                    scene.dispose();
-                    startGame(); }
-                );
-                advancedTextureRestart.addControl(buttonReStart);
-            }*/
-
-        //})
-    //});
-
-
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
             if (bool) {
@@ -89,7 +57,7 @@ function startGame() {
 
 function erase() {
     scene.dispose();
-    //superball.dispose();
+    superball.dispose();
     otherBallsMesh = null;
     villainBallsMesh = null;
     remainingBalls = 80;
@@ -147,7 +115,7 @@ function reStartButton() {
         buttonReStart.dispose();
         textblock.dispose();
         erase();
-        scene= createScene();
+        scene = createScene();
         startButton = createButtonLetsPlay();}
         );
     advancedTextureRestart.addControl(buttonReStart);
@@ -194,7 +162,7 @@ function createScene() {
     textblock.color = "black";
     advancedTexture.addControl(textblock);
 
-    let superball = createSuperBall(scene);
+    superball = createSuperBall(scene);
 
     let otherBalls = createBalls(remainingBalls,scene);
     let villainBalls = createVillains(remainingBalls/2, scene);
