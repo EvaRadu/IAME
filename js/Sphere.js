@@ -13,7 +13,7 @@ export default class Sphere {
         sphereMaterial.glossiness = 3;
         sphereMaterial.metallic = 5;
         sphereMaterial.roughness = 0.5;    
-        sphereMaterial.specularPower = 16;
+        sphereMaterial.specularPower = 8;
         
         
         if (texture != null) {

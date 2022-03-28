@@ -10,6 +10,7 @@ let villainBallsMesh;
 let ground;
 var music;
 let remainingBalls = 50;
+let balls = remainingBalls;
 let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
@@ -91,7 +92,7 @@ function WinOrLose() {
     const nb = otherBallsMesh.length;
     var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
     textblock = new BABYLON.GUI.TextBlock();           
-    if (remainingBalls <= nb/2) {
+    if (remainingBalls <= balls/2) {
         textblock.text = "Congrats : you win !";
     } else {
         textblock.text = "Mwahaha : you lost !";
@@ -195,7 +196,7 @@ function createGround(scene) {
 
     function onGroundCreated() {
         const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol10.jpg");
+        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol19.jpg");
         groundMaterial.diffuseTexture.uScale = 100;
         groundMaterial.diffuseTexture.vScale = 100;
         ground.material = groundMaterial;
@@ -203,12 +204,18 @@ function createGround(scene) {
         ground.checkCollisions = true;
         //groundMaterial.wireframe=true;
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+        /*ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+            ground,
+            BABYLON.PhysicsImpostor.HeightmapImpostor,
+            { mass: 0 },
+            scene
+          );*/
     }
     return ground;
 }
 
 function createSky(scene){
-    var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:3000.0}, scene);
+    var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:2000.0}, scene);
 	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
 	skyboxMaterial.backFaceCulling = false;
 	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('images/skybox2/skybox', scene);
@@ -216,12 +223,19 @@ function createSky(scene){
 	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 	skybox.material = skyboxMaterial;	
+
     return skybox;
 }
 
 function createLights(scene) {
     // i.e sun light with all light rays parallels, the vector is the direction.
-    let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
+    //let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
+    let light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
+    //light.intensity = 0.9;
+
+    /*light1.diffuse = new BABYLON.Color3(1, 0, 0);
+	light1.specular = new BABYLON.Color3(0,1,0);
+	light1.groundColor = new BABYLON.Color3(0,0,1);*/
 }
 
 function createFreeCamera(scene) {
@@ -266,19 +280,11 @@ function createSuperBall(scene) {
     
     superballMesh.move = () => {
        
-        /*
-        if (superballMesh.rotationQuaternion.y > 2) {
-            superballMesh.rotationQuaternion.z = 0;
-            superballMesh.rotationQuaternion.y = -2;
-        } */
-
-        //console.log("x " + superballMesh.rotationQuaternion.x + " y " + superballMesh.rotationQuaternion.y + " z " + superballMesh.rotationQuaternion.z);
-        //console.log(superballMesh.rotation.y);
+        
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-
-            //superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0,0,4));
-            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(superballMesh.speed, 0, 0, 0));
+            //superballMesh.moveWithCollisions(new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y)));
+            //superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed);
 
 
             detectCollision(scene);
@@ -286,39 +292,32 @@ function createSuperBall(scene) {
         }    
         if(inputStates.down) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
-            
-            //superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0,0,-4));
-            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(-superballMesh.speed, 0, 0, 0));
+            //superballMesh.moveWithCollisions(new BABYLON.Vector3(-Math.sin(superballMesh.rotation.y), 0, -Math.cos(superballMesh.rotation.y)));
+            //superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed);
 
             detectCollision(scene);
 
         }  
         if(inputStates.left) {
+            //superballMesh.moveWithCollisions(BABYLON.Vector3.Left().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            superballMesh.rotate(BABYLON.Axis.Y, -0.02);
+                  
             superballMesh.rotation.y -= 0.02;
             superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
            
-           /*
-            superballMesh.rotationQuaternion.y -= 0.02;
-            superballMesh.rotationQuaternion.x = Math.sin(superballMesh.rotationQuaternion.y);
-            superballMesh.rotationQuaternion.z = Math.cos(superballMesh.rotationQuaternion.y);
-            //superballMesh.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(1, 0 -1), Math.PI / 6);
+            detectCollision(scene);
 
-            superballMesh.frontVector = new BABYLON.Vector3( Math.sin(superballMesh.rotationQuaternion.y),0, Math.cos(superballMesh.rotationQuaternion.y));
-        */
-        }    
+        }   
+
         if(inputStates.right) {
+            //superballMesh.moveWithCollisions(BABYLON.Vector3.Right().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            superballMesh.rotate(BABYLON.Axis.Y, 0.02);
             superballMesh.rotation.y += 0.02;
+          
             superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
             
-            /*
-            superballMesh.rotationQuaternion.y += 0.02;
-            superballMesh.rotationQuaternion.x = Math.sin(superballMesh.rotationQuaternion.y);
-            superballMesh.rotationQuaternion.z = Math.cos(superballMesh.rotationQuaternion.y);
+            detectCollision(scene);
 
-            //superballMesh.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(1, 0, -1), -Math.PI / 6);
-
-            superballMesh.frontVector = new BABYLON.Vector3( Math.sin(superballMesh.rotationQuaternion.y),0, Math.cos(superballMesh.rotationQuaternion.y));
-      */
         }
 
         superball.updateParticles();
@@ -339,6 +338,7 @@ function createSuperBall(scene) {
     superballMesh.canJump = true;
     superballMesh.jumpAfter = 2; // in seconds
 
+
     superballMesh.jump = function(){
 
         if(!inputStates.space) {
@@ -353,20 +353,18 @@ function createSuperBall(scene) {
         else{
             console.log("jump");
 
+
         superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
 
-        superballMesh.canJump = false;
-        
+        superballMesh.canJump = false;  
+        detectCollision(scene);
+       
         setTimeout(() => {
             superballMesh.canJump = true;
         }, 1000 * superballMesh.jumpAfter)
 
-  
-        
-        
         //console.log("jump");
     }
-    detectCollision(scene);
 
     
     
@@ -417,7 +415,7 @@ function detectCollision(scene){
             remainingBalls--;
             touchedBalls++;
 
-            if (player.speed<10) {
+            if (player.speed<3) {
                 player.speed += 0.1;
             }
             //console.log("Balles restantes : " + remainingBalls);
