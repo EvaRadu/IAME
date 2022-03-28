@@ -265,19 +265,11 @@ function createSuperBall(scene) {
     
     superballMesh.move = () => {
        
-        /*
-        if (superballMesh.rotationQuaternion.y > 2) {
-            superballMesh.rotationQuaternion.z = 0;
-            superballMesh.rotationQuaternion.y = -2;
-        } */
-
-        //console.log("x " + superballMesh.rotationQuaternion.x + " y " + superballMesh.rotationQuaternion.y + " z " + superballMesh.rotationQuaternion.z);
-        //console.log(superballMesh.rotation.y);
+        
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-
-            //superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0,0,4));
-            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(superballMesh.speed, 0, 0, 0));
+            //superballMesh.moveWithCollisions(new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y)));
+            //superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed);
 
 
             detectCollision(scene);
@@ -285,39 +277,32 @@ function createSuperBall(scene) {
         }    
         if(inputStates.down) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
-            
-            //superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0,0,-4));
-            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Quaternion(-superballMesh.speed, 0, 0, 0));
+            //superballMesh.moveWithCollisions(new BABYLON.Vector3(-Math.sin(superballMesh.rotation.y), 0, -Math.cos(superballMesh.rotation.y)));
+            //superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed);
 
             detectCollision(scene);
 
         }  
         if(inputStates.left) {
+            //superballMesh.moveWithCollisions(BABYLON.Vector3.Left().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            superballMesh.rotate(BABYLON.Axis.Y, -0.02);
+                  
             superballMesh.rotation.y -= 0.02;
             superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
            
-           /*
-            superballMesh.rotationQuaternion.y -= 0.02;
-            superballMesh.rotationQuaternion.x = Math.sin(superballMesh.rotationQuaternion.y);
-            superballMesh.rotationQuaternion.z = Math.cos(superballMesh.rotationQuaternion.y);
-            //superballMesh.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(1, 0 -1), Math.PI / 6);
+            detectCollision(scene);
 
-            superballMesh.frontVector = new BABYLON.Vector3( Math.sin(superballMesh.rotationQuaternion.y),0, Math.cos(superballMesh.rotationQuaternion.y));
-        */
-        }    
+        }   
+
         if(inputStates.right) {
+            //superballMesh.moveWithCollisions(BABYLON.Vector3.Right().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            superballMesh.rotate(BABYLON.Axis.Y, 0.02);
             superballMesh.rotation.y += 0.02;
+          
             superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
             
-            /*
-            superballMesh.rotationQuaternion.y += 0.02;
-            superballMesh.rotationQuaternion.x = Math.sin(superballMesh.rotationQuaternion.y);
-            superballMesh.rotationQuaternion.z = Math.cos(superballMesh.rotationQuaternion.y);
+            detectCollision(scene);
 
-            //superballMesh.rotationQuaternion = new BABYLON.Quaternion.RotationAxis(new BABYLON.Vector3(1, 0, -1), -Math.PI / 6);
-
-            superballMesh.frontVector = new BABYLON.Vector3( Math.sin(superballMesh.rotationQuaternion.y),0, Math.cos(superballMesh.rotationQuaternion.y));
-      */
         }
 
         superball.updateParticles();
@@ -354,13 +339,12 @@ function createSuperBall(scene) {
 
         superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
 
-        superballMesh.canJump = false;
+        superballMesh.canJump = false;  
         
         setTimeout(() => {
             superballMesh.canJump = true;
         }, 1000 * superballMesh.jumpAfter)
-
-  
+        
         
         
         //console.log("jump");
