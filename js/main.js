@@ -62,7 +62,7 @@ function erase() {
     superball.dispose();
     otherBallsMesh = null;
     villainBallsMesh = null;
-    remainingBalls = 80;
+    remainingBalls = 50;
     touchedBalls = 0;
     inputStates = {};
     bool = false;
@@ -88,9 +88,10 @@ function createButtonLetsPlay() {
 }
 
 function WinOrLose() {
+    const nb = otherBallsMesh.length;
     var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
     textblock = new BABYLON.GUI.TextBlock();           
-    if (remainingBalls <= otherBallsMesh.length/2) {
+    if (remainingBalls <= nb/2) {
         textblock.text = "Congrats : you win !";
     } else {
         textblock.text = "Mwahaha : you lost !";
