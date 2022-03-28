@@ -10,6 +10,7 @@ let villainBallsMesh;
 let ground;
 var music;
 let remainingBalls = 50;
+let balls = remainingBalls;
 let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
@@ -90,7 +91,7 @@ function createButtonLetsPlay() {
 function WinOrLose() {
     var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
     textblock = new BABYLON.GUI.TextBlock();           
-    if (remainingBalls <= otherBallsMesh.length/2) {
+    if (remainingBalls <= balls/2) {
         textblock.text = "Congrats : you win !";
     } else {
         textblock.text = "Mwahaha : you lost !";
@@ -190,7 +191,7 @@ function createScene() {
 function createGround(scene) {
     const groundOptions = { width:2000, height:2000, subdivisions:20, minHeight:0, maxHeight:0, onReady: onGroundCreated};
     //scene is optional and defaults to the current scene
-    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
+    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap1.png', groundOptions, scene); 
 
     function onGroundCreated() {
         const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
@@ -207,7 +208,7 @@ function createGround(scene) {
 }
 
 function createSky(scene){
-    var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:3000.0}, scene);
+    var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:2000.0}, scene);
 	var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
 	skyboxMaterial.backFaceCulling = false;
 	skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture('images/skybox2/skybox', scene);
@@ -215,6 +216,7 @@ function createSky(scene){
 	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
 	skybox.material = skyboxMaterial;	
+
     return skybox;
 }
 
@@ -323,6 +325,7 @@ function createSuperBall(scene) {
     superballMesh.canJump = true;
     superballMesh.jumpAfter = 2; // in seconds
 
+
     superballMesh.jump = function(){
 
         if(!inputStates.space) {
@@ -337,19 +340,18 @@ function createSuperBall(scene) {
         else{
             console.log("jump");
 
+
         superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
 
         superballMesh.canJump = false;  
-        
+        detectCollision(scene);
+       
         setTimeout(() => {
             superballMesh.canJump = true;
         }, 1000 * superballMesh.jumpAfter)
-        
-        
-        
+
         //console.log("jump");
     }
-    detectCollision(scene);
 
     
     
@@ -400,7 +402,7 @@ function detectCollision(scene){
             remainingBalls--;
             touchedBalls++;
 
-            if (player.speed<10) {
+            if (player.speed<3) {
                 player.speed += 0.1;
             }
             //console.log("Balles restantes : " + remainingBalls);
