@@ -36,7 +36,7 @@ export default class Sphere {
         //this.sphereMesh.scaling = new BABYLON.Vector3(0.2  , 0.2, 0.2);
         sphereMesh.position.x = Math.floor(Math.random()*(300-(-300)+1)+(-300));
         sphereMesh.position.z = Math.floor(Math.random()*(300-(-300)+1)+(-300));
-        sphereMesh.position.y = 4;
+        sphereMesh.position.y = 200;
 
         sphereMesh.checkCollisions = true;
         //sphereMesh.showBoundingBox = true;
