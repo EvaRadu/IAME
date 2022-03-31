@@ -195,7 +195,7 @@ function createScene() {
 }
 
 function createGround(scene) {
-    const groundOptions = { width:2000, height:2000, subdivisions:20, minHeight:0, maxHeight:0, onReady: onGroundCreated};
+    const groundOptions = { width:2000, height:2000, subdivisions:200, minHeight:0, maxHeight:100, onReady: onGroundCreated};
     //scene is optional and defaults to the current scene
     const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
 
@@ -207,14 +207,14 @@ function createGround(scene) {
         ground.material = groundMaterial;
         // to be taken into account by collision detection
         ground.checkCollisions = true;
-        //groundMaterial.wireframe=true;
-        ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-        /*ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+        groundMaterial.wireframe=true;
+        //ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
             ground,
             BABYLON.PhysicsImpostor.HeightmapImpostor,
             { mass: 0 },
             scene
-          );*/
+          );
     }
     return ground;
 }
