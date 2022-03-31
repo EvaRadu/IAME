@@ -9,7 +9,7 @@ let otherBallsMesh;
 let villainBallsMesh;
 let ground;
 var music;
-let remainingBalls = 50;
+let remainingBalls = 20;
 let balls = remainingBalls;
 let touchedBalls = 0;
 let inputStates = {};
@@ -42,6 +42,9 @@ function startGame() {
                     superball.move();
                     superball.jump();
                     //scene.render();
+                    if (remainingBalls == 0) {
+                        isPlaying = false;
+                    }
                 }
                 else {
                     var textblockWL = WinOrLose();
@@ -63,7 +66,7 @@ function erase() {
     superball.dispose();
     otherBallsMesh = null;
     villainBallsMesh = null;
-    remainingBalls = 50;
+    remainingBalls = 20;
     touchedBalls = 0;
     inputStates = {};
     bool = false;
@@ -131,7 +134,7 @@ function createTimer(i) { // i seconds
     // GUI
     var advancedTextureTime = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UITime");
 
-    var textBlock = new BABYLON.GUI.TextBlock("text", new String(i) + " seconds");
+    var textBlock = new BABYLON.GUI.TextBlock("text", "Remaining time : " + new String(i) + " seconds");
     textBlock.color = "black";
     textBlock.fontSize = 24;   
     textBlock.top = -275;
@@ -141,13 +144,15 @@ function createTimer(i) { // i seconds
 
     isPlaying = true;
     var timer = window.setInterval(() => {
-        i--;
-        textBlock.text = new String(i) + " seconds";
-        if (i <= 0) {
-            isPlaying = false;
-            window.clearInterval(timer);
-            textBlock.dispose();
-            advancedTextureTime.dispose();
+        if (isPlaying) {
+            i--;
+            textBlock.text = "Remaining time : " + new String(i) + " seconds";
+            if (i <= 0) {
+                isPlaying = false;
+                window.clearInterval(timer);
+                textBlock.dispose();
+                advancedTextureTime.dispose();
+            }
         }
     }, 1000)
     return timer;
