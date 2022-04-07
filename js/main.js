@@ -192,7 +192,7 @@ function createScene() {
     createLights(scene);
     createSky(scene);
 
-    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
+    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,restitution: 0.0005 ,friction:1,damping:0}, scene);
     
    return scene;
 }
@@ -230,7 +230,9 @@ function createSky(scene){
 	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
 	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-	skybox.material = skyboxMaterial;	
+	skybox.material = skyboxMaterial;
+    skybox.infiniteDistance = true;
+
 
     return skybox;
 }
@@ -296,45 +298,19 @@ function createSuperBall(scene) {
     localAxes.xAxis.parent = superballMesh;
     localAxes.yAxis.parent = superballMesh;
     localAxes.zAxis.parent = superballMesh;
+    
+   
 
     superballMesh.move = () => {
 
-
-
-        //this.superballMesh.frontVector = camera.getDirection(new BABYLON.Vector3(0, 0, 1));
-        /*this.superballMesh.frontVector.y = 0;
-        this.superballMesh.frontVector.normalize();
-        let forceMagnitude = 500;
-        let contactLocalRefPoint = BABYLON.Vector3.Zero();
-        let forceDirection = BABYLON.Vector3.Zero();
-
-        if(inputStates.up) {
-            forceDirection = this.superballMesh.frontVector;
-        }
-        else if(inputStates.down) {
-            forceDirection = this.superballMesh.frontVector.negate();
-        }
-        if(inputStates.right) {
-            forceDirection.x = this.superballMesh.frontVector.z;
-            forceDirection.z = -this.superballMesh.frontVector.x;
-        }
-        else if(inputStates.left) {
-            //TODO voir pour inverser cosinus ou sinus
-            forceDirection.x = -this.superballMesh.frontVector.z;
-            forceDirection.z = this.superballMesh.frontVector.x;
-        }
-        //console.log(forceDirection);
-        this.superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), this.superballMesh.getAbsolutePosition().add(contactLocalRefPoint));*/
-       
+               
         superballMesh.frontVector.normalize();
         let forceMagnitude = 70;
         let contactLocalRefPoint = BABYLON.Vector3.Zero();
         let forceDirection = BABYLON.Vector3.Zero();
 
         if(inputStates.up) {
-            //superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            //superballMesh.moveWithCollisions(new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y)));
-            //superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed);
+          
             forceDirection = superballMesh.frontVector.negate();
             
 
@@ -344,63 +320,48 @@ function createSuperBall(scene) {
         if(inputStates.down) {
             forceDirection = superballMesh.frontVector;
 
-
-            //superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
-            //superballMesh.moveWithCollisions(new BABYLON.Vector3(-Math.sin(superballMesh.rotation.y), 0, -Math.cos(superballMesh.rotation.y)));
-            //superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed);
-
             detectCollision(scene);
 
         }  
         if(inputStates.left) {  
 
-            //superballMesh.moveWithCollisions(BABYLON.Vector3.Left().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            //superballMesh.rotate(BABYLON.Axis.Y, -0.02);
-                  
-           /* superballMesh.rotation.y -= 0.02;
-            let frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
-            superballMesh.physicsImpostor.setLinearVelocity(frontVector.multiplyByFloats(100, 100, 100));
-            */
             forceDirection.x = superballMesh.frontVector.z;
             forceDirection.z = -superballMesh.frontVector.x;
-            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Vector3(1, 0 -1), Math.PI / 2);
             detectCollision(scene);
 
         }   
 
         if(inputStates.right) {
 
-            //superballMesh.moveWithCollisions(BABYLON.Vector3.Right().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            //superballMesh.rotate(BABYLON.Axis.Y, 0.02);
-            /*
-            superballMesh.rotation.y += 0.02;
-            let frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
-            superballMesh.physicsImpostor.setLinearVelocity(frontVector.multiplyByFloats(100, 100, 100));
-            */
             forceDirection.x = -superballMesh.frontVector.z;
             forceDirection.z = superballMesh.frontVector.x;
-            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Vector3(1, 0 -1), -Math.PI / 2);
 
             detectCollision(scene);
 
         }
-        superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
 
+        
+        
+        if (superballMesh.physicsImpostor.getLinearVelocity().z > 60) {
+            superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(superballMesh.physicsImpostor.getLinearVelocity().x, superballMesh.physicsImpostor.getLinearVelocity().y, 60));
+            } else if (superballMesh.physicsImpostor.getLinearVelocity().x > 55) {
+                superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(55, superballMesh.physicsImpostor.getLinearVelocity().y, superballMesh.physicsImpostor.getLinearVelocity().z));
+            } else if (superballMesh.physicsImpostor.getLinearVelocity().z < -50) {
+                superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(superballMesh.physicsImpostor.getLinearVelocity().x, superballMesh.physicsImpostor.getLinearVelocity().y, -50));
+            } else if (superballMesh.physicsImpostor.getLinearVelocity().x < -55) {
+                superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(-55, superballMesh.physicsImpostor.getLinearVelocity().y, superballMesh.physicsImpostor.getLinearVelocity().z));
+            }
+
+            else{
+        superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
+            }
+        
         superball.updateParticles();
     }  
    
 
 
     
-/*
-    if (superballMesh.intersectsMesh(ground, true)) {
-        superballMesh.canJump = true;
-    }
-    else{
-        superballMesh.canJump = false;
-    }
-    */
-
     superballMesh.canJump = true;
     superballMesh.jumpAfter = 2; // in seconds
 
@@ -429,7 +390,6 @@ function createSuperBall(scene) {
             superballMesh.canJump = true;
         }, 1000 * superballMesh.jumpAfter)
 
-        //console.log("jump");
     }
 
     
@@ -484,6 +444,7 @@ function detectCollision(scene){
             if (player.speed<3) {
                 player.speed += 0.1;
             }
+
             //console.log("Balles restantes : " + remainingBalls);
             //console.log("Balles touchées : " + touchedBalls);
             textblock.text = "Remaining balls : " + remainingBalls;
