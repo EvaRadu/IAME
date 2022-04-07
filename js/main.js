@@ -14,7 +14,7 @@ let remainingBalls = 20;
 let balls = remainingBalls;
 let touchedBalls = 0;
 let inputStates = {};
-let bool = true;
+let bool = false;
 var textblock;
 let isPlaying = true;
 let startButton;
@@ -34,7 +34,7 @@ function startGame() {
     modifySettings();
 
     superball = scene.getMeshByName("heroSuperball");
-    //startButton = createButtonLetsPlay();
+    startButton = createButtonLetsPlay();
 
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
@@ -48,8 +48,8 @@ function startGame() {
                     }
                 }
                 else {
-                    //var textblockWL = WinOrLose();
-                    //reStartButton = reStartButton();
+                    var textblockWL = WinOrLose();
+                    reStartButton = reStartButton();
                     //scene = createScene(); 
                     //startButton = createButtonLetsPlay();
      
@@ -86,7 +86,7 @@ function createButtonLetsPlay() {
     button1.onPointerUpObservable.add(function() {
         button1.dispose();
         bool = true;
-        //createTimer(90); 
+        createTimer(90); 
     });
     advancedTexture.addControl(button1);
     return button1;
@@ -124,7 +124,7 @@ function reStartButton() {
         textblock.dispose();
         erase();
         scene = createScene();
-        //startButton = createButtonLetsPlay();
+        startButton = createButtonLetsPlay();
         });
     advancedTextureRestart.addControl(buttonReStart);
     return reStartButton;
@@ -171,14 +171,14 @@ function createScene() {
     scene.enablePhysics();
 
     
-    /*var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
     textblock = new BABYLON.GUI.TextBlock();
     textblock.text = "Remaining balls : " + remainingBalls;
     textblock.fontSize = 24;
     textblock.top = -275;
     textblock.left = 410;
     textblock.color = "black";
-    advancedTexture.addControl(textblock);*/
+    advancedTexture.addControl(textblock);
     
 
     superball = createSuperBall(scene);
@@ -386,7 +386,6 @@ function createSuperBall(scene) {
         }
         superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
 
-
         superball.updateParticles();
     }  
    
@@ -487,7 +486,7 @@ function detectCollision(scene){
             }
             //console.log("Balles restantes : " + remainingBalls);
             //console.log("Balles touchées : " + touchedBalls);
-            //textblock.text = "Remaining balls : " + remainingBalls;
+            textblock.text = "Remaining balls : " + remainingBalls;
             
             /*
             var winSound = new BABYLON.Sound("winSound", "sounds/win.wav", scene);
