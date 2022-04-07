@@ -2,6 +2,7 @@ import Sphere from "./Sphere.js";
 import SuperBall from "./SuperBall.js";
 
 let canvas;
+let camera;
 let engine;
 let scene;
 let superball;
@@ -13,7 +14,7 @@ let remainingBalls = 20;
 let balls = remainingBalls;
 let touchedBalls = 0;
 let inputStates = {};
-let bool = false;
+let bool = true;
 var textblock;
 let isPlaying = true;
 let startButton;
@@ -33,7 +34,7 @@ function startGame() {
     modifySettings();
 
     superball = scene.getMeshByName("heroSuperball");
-    startButton = createButtonLetsPlay();
+    //startButton = createButtonLetsPlay();
 
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
@@ -47,8 +48,8 @@ function startGame() {
                     }
                 }
                 else {
-                    var textblockWL = WinOrLose();
-                    reStartButton = reStartButton();
+                    //var textblockWL = WinOrLose();
+                    //reStartButton = reStartButton();
                     //scene = createScene(); 
                     //startButton = createButtonLetsPlay();
      
@@ -85,7 +86,7 @@ function createButtonLetsPlay() {
     button1.onPointerUpObservable.add(function() {
         button1.dispose();
         bool = true;
-        createTimer(90); 
+        //createTimer(90); 
     });
     advancedTexture.addControl(button1);
     return button1;
@@ -123,8 +124,8 @@ function reStartButton() {
         textblock.dispose();
         erase();
         scene = createScene();
-        startButton = createButtonLetsPlay();}
-        );
+        //startButton = createButtonLetsPlay();
+        });
     advancedTextureRestart.addControl(buttonReStart);
     return reStartButton;
 
@@ -169,14 +170,16 @@ function createScene() {
 
     scene.enablePhysics();
 
-    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
+    
+    /*var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
     textblock = new BABYLON.GUI.TextBlock();
     textblock.text = "Remaining balls : " + remainingBalls;
     textblock.fontSize = 24;
     textblock.top = -275;
     textblock.left = 410;
     textblock.color = "black";
-    advancedTexture.addControl(textblock);
+    advancedTexture.addControl(textblock);*/
+    
 
     superball = createSuperBall(scene);
 
@@ -207,7 +210,7 @@ function createGround(scene) {
         ground.material = groundMaterial;
         // to be taken into account by collision detection
         ground.checkCollisions = true;
-        groundMaterial.wireframe=true;
+        //groundMaterial.wireframe=true;
         //ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(
             ground,
@@ -236,7 +239,7 @@ function createLights(scene) {
     // i.e sun light with all light rays parallels, the vector is the direction.
     //let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
     let light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-    //light.intensity = 0.9;
+    light.intensity = 0.9;
 
     /*light1.diffuse = new BABYLON.Color3(1, 0, 0);
 	light1.specular = new BABYLON.Color3(0,1,0);
@@ -266,13 +269,19 @@ function createFreeCamera(scene) {
 }
 
 function createFollowCamera(scene, target) {
-    let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
+    camera =new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
+    camera.setPosition(new BABYLON.Vector3(0, 100, 80));
+    camera.target = target;
+    //camera = new BABYLON.ArcFollowCamera("superballFollowCamera", 180,-50, 100, target, scene);
+    //camera.rotationOffset = 180; // the viewing angle
+    /*let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
 
     camera.radius = 50; // how far from the object to follow
 	camera.heightOffset = 14; // how high above the object to place the camera
 	camera.rotationOffset = 180; // the viewing angle
 	camera.cameraAcceleration = .1; // how fast to move
 	camera.maxCameraSpeed = 5; // speed limit
+    */
 
     return camera;
 }
@@ -282,51 +291,104 @@ let zMovement = 5;
 function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
-    
+
+    const localAxes = new BABYLON.AxesViewer(scene, 10);
+    localAxes.xAxis.parent = superballMesh;
+    localAxes.yAxis.parent = superballMesh;
+    localAxes.zAxis.parent = superballMesh;
+
     superballMesh.move = () => {
-       
-        
+
+
+
+        //this.superballMesh.frontVector = camera.getDirection(new BABYLON.Vector3(0, 0, 1));
+        /*this.superballMesh.frontVector.y = 0;
+        this.superballMesh.frontVector.normalize();
+        let forceMagnitude = 500;
+        let contactLocalRefPoint = BABYLON.Vector3.Zero();
+        let forceDirection = BABYLON.Vector3.Zero();
+
         if(inputStates.up) {
-            superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
+            forceDirection = this.superballMesh.frontVector;
+        }
+        else if(inputStates.down) {
+            forceDirection = this.superballMesh.frontVector.negate();
+        }
+        if(inputStates.right) {
+            forceDirection.x = this.superballMesh.frontVector.z;
+            forceDirection.z = -this.superballMesh.frontVector.x;
+        }
+        else if(inputStates.left) {
+            //TODO voir pour inverser cosinus ou sinus
+            forceDirection.x = -this.superballMesh.frontVector.z;
+            forceDirection.z = this.superballMesh.frontVector.x;
+        }
+        //console.log(forceDirection);
+        this.superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), this.superballMesh.getAbsolutePosition().add(contactLocalRefPoint));*/
+       
+        superballMesh.frontVector.normalize();
+        let forceMagnitude = 70;
+        let contactLocalRefPoint = BABYLON.Vector3.Zero();
+        let forceDirection = BABYLON.Vector3.Zero();
+
+        if(inputStates.up) {
+            //superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
             //superballMesh.moveWithCollisions(new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y)));
             //superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed);
-
+            forceDirection = superballMesh.frontVector.negate();
+            
 
             detectCollision(scene);
 
         }    
         if(inputStates.down) {
-            superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
+            forceDirection = superballMesh.frontVector;
+
+
+            //superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
             //superballMesh.moveWithCollisions(new BABYLON.Vector3(-Math.sin(superballMesh.rotation.y), 0, -Math.cos(superballMesh.rotation.y)));
             //superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed);
 
             detectCollision(scene);
 
         }  
-        if(inputStates.left) {
+        if(inputStates.left) {  
+
             //superballMesh.moveWithCollisions(BABYLON.Vector3.Left().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            superballMesh.rotate(BABYLON.Axis.Y, -0.02);
+            //superballMesh.rotate(BABYLON.Axis.Y, -0.02);
                   
-            superballMesh.rotation.y -= 0.02;
-            superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
-           
+           /* superballMesh.rotation.y -= 0.02;
+            let frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
+            superballMesh.physicsImpostor.setLinearVelocity(frontVector.multiplyByFloats(100, 100, 100));
+            */
+            forceDirection.x = superballMesh.frontVector.z;
+            forceDirection.z = -superballMesh.frontVector.x;
+            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Vector3(1, 0 -1), Math.PI / 2);
             detectCollision(scene);
 
         }   
 
         if(inputStates.right) {
+
             //superballMesh.moveWithCollisions(BABYLON.Vector3.Right().multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
-            superballMesh.rotate(BABYLON.Axis.Y, 0.02);
+            //superballMesh.rotate(BABYLON.Axis.Y, 0.02);
+            /*
             superballMesh.rotation.y += 0.02;
-          
-            superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
-            
+            let frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
+            superballMesh.physicsImpostor.setLinearVelocity(frontVector.multiplyByFloats(100, 100, 100));
+            */
+            forceDirection.x = -superballMesh.frontVector.z;
+            forceDirection.z = superballMesh.frontVector.x;
+            //superballMesh.physicsImpostor.setAngularVelocity(new BABYLON.Vector3(1, 0 -1), -Math.PI / 2);
+
             detectCollision(scene);
 
         }
+        superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
+
 
         superball.updateParticles();
-    }
+    }  
    
 
 
@@ -425,7 +487,7 @@ function detectCollision(scene){
             }
             //console.log("Balles restantes : " + remainingBalls);
             //console.log("Balles touchées : " + touchedBalls);
-            textblock.text = "Remaining balls : " + remainingBalls;
+            //textblock.text = "Remaining balls : " + remainingBalls;
             
             /*
             var winSound = new BABYLON.Sound("winSound", "sounds/win.wav", scene);
