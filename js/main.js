@@ -161,6 +161,8 @@ function createTimer(i) { // i seconds
 
 function createScene() {
     let scene = new BABYLON.Scene(engine);
+    scene.enablePhysics();
+
     let ground = createGround(scene);
 
     music = new BABYLON.Sound("backgroundMusic", "sounds/sound1.mp3", scene, null, { loop: true, autoplay: true });
@@ -168,7 +170,6 @@ function createScene() {
 
     let freeCamera = createFreeCamera(scene);
 
-    scene.enablePhysics();
 
     
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
@@ -180,7 +181,6 @@ function createScene() {
     textblock.color = "black";
     advancedTexture.addControl(textblock);
     
-
     superball = createSuperBall(scene);
 
     let otherBalls = createBalls(remainingBalls,scene);
@@ -192,13 +192,16 @@ function createScene() {
     createLights(scene);
     createSky(scene);
 
-    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,restitution: 0.0005 ,friction:1,damping:0}, scene);
-    
-   return scene;
+
+    superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
+    scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);    
+    return scene;
 }
 
 function createGround(scene) {
-    const groundOptions = { width:2000, height:2000, subdivisions:50, minHeight:0, maxHeight:100, onReady: onGroundCreated};
+    let width = 2000;
+    let height = 2000
+    const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:100, onReady: onGroundCreated};
     //scene is optional and defaults to the current scene
     const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
 
@@ -219,6 +222,7 @@ function createGround(scene) {
             scene
           );
     }
+    createWalls(scene,width,height)
     return ground;
 }
 
@@ -230,9 +234,10 @@ function createSky(scene){
 	skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
 	skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
 	skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-	skybox.material = skyboxMaterial;
-    skybox.infiniteDistance = true;
 
+	skybox.material = skyboxMaterial;	
+    skybox.infiniteDistance = true;
+    //skyboxMaterial.disableLighting = true;
 
     return skybox;
 }
@@ -277,6 +282,7 @@ function createFollowCamera(scene, target) {
     //camera.cameraDirection = new BABYLON.Vector3(10,0,0)
     //console.log(camera.cameraDirection);
 
+
     camera.target = target;
 
    // camera.radius = -10;
@@ -301,6 +307,59 @@ function createFollowCamera(scene, target) {
     return camera;
 }
 
+function createWalls(scene, size1, size2) {
+    var faceColors = new Array(6);
+    faceColors[0] = (new BABYLON.Color4(0.62, 0.14, 0.14))
+    faceColors[1] = (new BABYLON.Color4(0.62, 0.14, 0.14))
+    faceColors[2] = (new BABYLON.Color4(0.62, 0.14, 0.14))
+    faceColors[3] = (new BABYLON.Color4(0.62, 0.14, 0.14))
+    faceColors[4] = (new BABYLON.Color4(0.62, 0.14, 0.14))
+    faceColors[5] = (new BABYLON.Color4(0.62, 0.14, 0.14))
+    
+
+    var options1 = {
+    width: size1,
+    height: size2/2 + 500,
+    depth: 0.1,
+    //faceColors : faceColors
+    };
+
+      
+    var options2 = {
+        width: 0.1,
+        height: size2/2 + 500,
+        depth: 2*size1,
+        //faceColors : faceColors
+        };
+    
+    const box1 = BABYLON.MeshBuilder.CreateBox("box1", options1);
+    let box1Material = new BABYLON.StandardMaterial("box1Material", scene);
+    box1Material.alpha = 0;
+    box1.material = box1Material;
+    box1.position = new BABYLON.Vector3(0,100,-(size1/2));
+    const boxImpostor1 = new BABYLON.PhysicsImpostor( box1, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0}, scene);
+
+    const box2 = BABYLON.MeshBuilder.CreateBox("box2", options1);
+    box2.position = new BABYLON.Vector3(0,100,(size1/2));
+    let box2Material = new BABYLON.StandardMaterial("box2Material", scene);
+    box2Material.alpha = 0;
+    box2.material = box2Material;
+    const boxImpostor2 = new BABYLON.PhysicsImpostor( box2, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0}, scene);
+  
+    const box3 = BABYLON.MeshBuilder.CreateBox("box3", options2);
+    box3.position = new BABYLON.Vector3((size1/2),100,-(size1/2));
+    let box3Material = new BABYLON.StandardMaterial("box3Material", scene);
+    box3Material.alpha = 0;
+    box3.material = box3Material;
+    const boxImpostor3 = new BABYLON.PhysicsImpostor( box3, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0}, scene);
+    
+    const box4 = BABYLON.MeshBuilder.CreateBox("box4", options2);
+    box4.position = new BABYLON.Vector3(-(size1/2),100,-(size1/2));
+    let box4Material = new BABYLON.StandardMaterial("box4Material", scene);
+    box4Material.alpha = 0;
+    box4.material = box4Material;
+    const boxImpostor4 = new BABYLON.PhysicsImpostor( box4, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0}, scene);
+}
 
 let zMovement = 5;
 function createSuperBall(scene) {
@@ -509,10 +568,6 @@ function detectCollision(scene){
     }
        
 }
-
-
-
-
 
 
 window.addEventListener("resize", () => {
