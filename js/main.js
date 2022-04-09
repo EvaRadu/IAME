@@ -271,9 +271,22 @@ function createFreeCamera(scene) {
 }
 
 function createFollowCamera(scene, target) {
-    camera =new BABYLON.ArcRotateCamera("Camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
+
+    camera =new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
     camera.setPosition(new BABYLON.Vector3(0, 100, 80));
+    //camera.cameraDirection = new BABYLON.Vector3(10,0,0)
+    //console.log(camera.cameraDirection);
+
     camera.target = target;
+
+   // camera.radius = -10;
+   // camera.heightOffset = 2; 
+    //camera.rotationOffset = -60;
+    //camera.useBouncingBehavior = true;
+    //camera.useAutoRotationBehavior = true;
+    //camera.useFramingBehavior = true;
+
+
     //camera = new BABYLON.ArcFollowCamera("superballFollowCamera", 180,-50, 100, target, scene);
     //camera.rotationOffset = 180; // the viewing angle
     /*let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
@@ -294,14 +307,19 @@ function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
 
+
+    /*
     const localAxes = new BABYLON.AxesViewer(scene, 10);
     localAxes.xAxis.parent = superballMesh;
     localAxes.yAxis.parent = superballMesh;
     localAxes.zAxis.parent = superballMesh;
+    */
     
    
 
     superballMesh.move = () => {
+        let cam = scene.activeCamera;
+        //console.log(cam.position);
 
                
         superballMesh.frontVector.normalize();
@@ -324,6 +342,8 @@ function createSuperBall(scene) {
 
         }  
         if(inputStates.left) {  
+            //cam.setPosition(new BABYLON.Vector3(cam.position.x - 1, cam.position.y, cam.position.z));
+            //cam.target = superballMesh;
 
             forceDirection.x = superballMesh.frontVector.z;
             forceDirection.z = -superballMesh.frontVector.x;
@@ -332,28 +352,39 @@ function createSuperBall(scene) {
         }   
 
         if(inputStates.right) {
+            //cam.setPosition(new BABYLON.Vector3(cam.position.x + 1, cam.position.y, cam.position.z));
+            //cam.target = superballMesh;
 
             forceDirection.x = -superballMesh.frontVector.z;
             forceDirection.z = superballMesh.frontVector.x;
-
             detectCollision(scene);
 
         }
+
+      
 
         
         
         if (superballMesh.physicsImpostor.getLinearVelocity().z > 60) {
             superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(superballMesh.physicsImpostor.getLinearVelocity().x, superballMesh.physicsImpostor.getLinearVelocity().y, 60));
-            } else if (superballMesh.physicsImpostor.getLinearVelocity().x > 55) {
+            detectCollision(scene);
+
+        } else if (superballMesh.physicsImpostor.getLinearVelocity().x > 55) {
                 superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(55, superballMesh.physicsImpostor.getLinearVelocity().y, superballMesh.physicsImpostor.getLinearVelocity().z));
+                detectCollision(scene);
+
             } else if (superballMesh.physicsImpostor.getLinearVelocity().z < -50) {
                 superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(superballMesh.physicsImpostor.getLinearVelocity().x, superballMesh.physicsImpostor.getLinearVelocity().y, -50));
+                detectCollision(scene);
+
             } else if (superballMesh.physicsImpostor.getLinearVelocity().x < -55) {
                 superballMesh.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(-55, superballMesh.physicsImpostor.getLinearVelocity().y, superballMesh.physicsImpostor.getLinearVelocity().z));
+                detectCollision(scene);
             }
 
             else{
-        superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
+                superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
+                detectCollision(scene);
             }
         
         superball.updateParticles();
