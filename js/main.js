@@ -278,7 +278,8 @@ function createFreeCamera(scene) {
 function createFollowCamera(scene, target) {
 
     camera =new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
-    camera.setPosition(new BABYLON.Vector3(0, 100, 80));
+    camera.setPosition(new BABYLON.Vector3(0, 100, 80))
+    //camera.setPosition(new BABYLON.Vector3(0, 100, 80));
     //camera.cameraDirection = new BABYLON.Vector3(10,0,0)
     //console.log(camera.cameraDirection);
 
@@ -401,7 +402,7 @@ function createSuperBall(scene) {
 
         }  
         if(inputStates.left) {  
-            //cam.setPosition(new BABYLON.Vector3(cam.position.x - 1, cam.position.y, cam.position.z));
+            //cam.setPosition(new BABYLON.Vector3(superballMesh.position.x - 10, 100 , 80));
             //cam.target = superballMesh;
 
             forceDirection.x = superballMesh.frontVector.z;
@@ -411,7 +412,7 @@ function createSuperBall(scene) {
         }   
 
         if(inputStates.right) {
-            //cam.setPosition(new BABYLON.Vector3(cam.position.x + 1, cam.position.y, cam.position.z));
+            //cam.setPosition(new BABYLON.Vector3(superballMesh.position.x + 10, 100 , 80));
             //cam.target = superballMesh;
 
             forceDirection.x = -superballMesh.frontVector.z;
@@ -442,7 +443,7 @@ function createSuperBall(scene) {
             }
 
             else{
-                superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
+                superballMesh.physicsImpostor.applyForce(forceDirection.scale(forceMagnitude*superballMesh.speed), superballMesh.getAbsolutePosition().add(contactLocalRefPoint));
                 detectCollision(scene);
             }
         
@@ -472,7 +473,6 @@ function createSuperBall(scene) {
 
 
         superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
-
         superballMesh.canJump = false;  
         detectCollision(scene);
        
