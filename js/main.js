@@ -20,6 +20,7 @@ let isPlaying = true;
 let startButton;
 let restartButton;
 let boolOnRestartButton = false;
+let boxMesh;
 
 window.onload = startGame;
 
@@ -167,11 +168,7 @@ function createScene() {
 
     music = new BABYLON.Sound("backgroundMusic", "sounds/sound1.mp3", scene, null, { loop: true, autoplay: true });
 
-
-    let freeCamera = createFreeCamera(scene);
-
-
-    
+   
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
     textblock = new BABYLON.GUI.TextBlock();
     textblock.text = "Remaining balls : " + remainingBalls;
@@ -186,7 +183,7 @@ function createScene() {
     let otherBalls = createBalls(remainingBalls,scene);
     let villainBalls = createVillains(remainingBalls/2, scene);
 
-    let followCamera = createFollowCamera(scene, superball);
+    let followCamera = createFollowCamera(scene, boxMesh);
     scene.activeCamera = followCamera;
   
     createLights(scene);
@@ -253,38 +250,18 @@ function createLights(scene) {
 	light1.groundColor = new BABYLON.Color3(0,0,1);*/
 }
 
-function createFreeCamera(scene) {
-    let camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 50, 0), scene);
-    camera.attachControl(canvas);
-    // prevent camera to cross ground
-    camera.checkCollisions = true; 
-    // avoid flying with the camera
-    camera.applyGravity = true;
 
-    // Add extra keys for camera movements
-    // Need the ascii code of the extra key(s). We use a string method here to get the ascii code
-    camera.keysUp.push('z'.charCodeAt(0));
-    camera.keysDown.push('s'.charCodeAt(0));
-    camera.keysLeft.push('q'.charCodeAt(0));
-    camera.keysRight.push('d'.charCodeAt(0));
-    camera.keysUp.push('Z'.charCodeAt(0));
-    camera.keysDown.push('S'.charCodeAt(0));
-    camera.keysLeft.push('Q'.charCodeAt(0));
-    camera.keysRight.push('D'.charCodeAt(0));
-
-    return camera;
-}
 
 function createFollowCamera(scene, target) {
 
-    camera =new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
-    camera.setPosition(new BABYLON.Vector3(0, 100, 80))
+    //camera =new BABYLON.ArcRotateCamera("Camera", 0, 0, 0, new BABYLON.Vector3(0, 0, 0), scene);
+    //camera.setPosition(new BABYLON.Vector3(0, 100, 80))
     //camera.setPosition(new BABYLON.Vector3(0, 100, 80));
     //camera.cameraDirection = new BABYLON.Vector3(10,0,0)
     //console.log(camera.cameraDirection);
 
 
-    camera.target = target;
+    //camera.target = target;
 
    // camera.radius = -10;
    // camera.heightOffset = 2; 
@@ -294,16 +271,16 @@ function createFollowCamera(scene, target) {
     //camera.useFramingBehavior = true;
 
 
-    //camera = new BABYLON.ArcFollowCamera("superballFollowCamera", 180,-50, 100, target, scene);
-    //camera.rotationOffset = 180; // the viewing angle
-    /*let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
-
+   // camera = new BABYLON.ArcFollowCamera("superballFollowCamera", 0,0, 0, target, scene);
+   // camera.setPosition(new BABYLON.Vector3(0, 100, 80))
+   // camera.rotationOffset = 180; // the viewing angle
+    let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
     camera.radius = 50; // how far from the object to follow
 	camera.heightOffset = 14; // how high above the object to place the camera
-	camera.rotationOffset = 180; // the viewing angle
+	camera.rotationOffset = 360; // the viewing angle
 	camera.cameraAcceleration = .1; // how fast to move
 	camera.maxCameraSpeed = 5; // speed limit
-    */
+    
 
     return camera;
 }
@@ -367,7 +344,20 @@ function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
 
+    let mat = new BABYLON.StandardMaterial("mat", scene);
+    mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+  
+    boxMesh = BABYLON.MeshBuilder.CreateBox("boxMesh", { height: 7, width: 7, depth: 7 });
+    boxMesh.material = mat;
+  
+    boxMesh.position = new BABYLON.Vector3(superballMesh.position.x,superballMesh.position.y, superballMesh.position.z);
 
+
+    /*
+    superballMesh.parent = boxMesh; //1
+    superballMesh.setParent(boxMesh); //2
+    boxMesh.addChild(superballMesh); //3
+    */
     /*
     const localAxes = new BABYLON.AxesViewer(scene, 10);
     localAxes.xAxis.parent = superballMesh;
@@ -402,8 +392,11 @@ function createSuperBall(scene) {
 
         }  
         if(inputStates.left) {  
-            //cam.setPosition(new BABYLON.Vector3(superballMesh.position.x - 10, 100 , 80));
-            //cam.target = superballMesh;
+            /*cam.setPosition(new BABYLON.Vector3(cam.position.x - 1, cam.position.y , cam.position.z));
+            console.log("1 "  + cam.target);
+            cam.target = superballMesh;
+            console.log("2 " + cam.target);*/
+
 
             forceDirection.x = superballMesh.frontVector.z;
             forceDirection.z = -superballMesh.frontVector.x;
@@ -412,7 +405,7 @@ function createSuperBall(scene) {
         }   
 
         if(inputStates.right) {
-            //cam.setPosition(new BABYLON.Vector3(superballMesh.position.x + 10, 100 , 80));
+            //cam.setPosition(new BABYLON.Vector3(cam.position.x + 1, cam.position.y , cam.position.z));
             //cam.target = superballMesh;
 
             forceDirection.x = -superballMesh.frontVector.z;
@@ -448,6 +441,8 @@ function createSuperBall(scene) {
             }
         
         superball.updateParticles();
+        boxMesh.position = new BABYLON.Vector3(superballMesh.position.x,superballMesh.position.y, superballMesh.position.z);
+        
     }  
    
 
