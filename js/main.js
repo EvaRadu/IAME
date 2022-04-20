@@ -20,7 +20,6 @@ let isPlaying = true;
 let startButton;
 let restartButton;
 let boolOnRestartButton = false;
-let boxMesh;
 
 window.onload = startGame;
 
@@ -42,8 +41,8 @@ function startGame() {
             if (bool) {
                 if ((isPlaying) && (bool)) {
                     //superball.move();
-                    boxMesh.move();
-                    boxMesh.jump();
+                    superball.move();
+                    superball.jump();
                     //scene.render();
                     if (remainingBalls == 0) {
                         isPlaying = false;
@@ -184,7 +183,7 @@ function createScene() {
     let otherBalls = createBalls(remainingBalls,scene);
     let villainBalls = createVillains(remainingBalls/2, scene);
 
-    let followCamera = createFollowCamera(scene, boxMesh);
+    let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
   
     createLights(scene);
@@ -192,7 +191,6 @@ function createScene() {
 
 
     //superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
-    //boxMesh.physicsImpostor = new BABYLON.PhysicsImpostor(boxMesh, BABYLON.PhysicsImpostor.BoxImpostor, {mass:1} , scene);
     scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);    
     return scene;
 }
@@ -255,7 +253,7 @@ function createLights(scene) {
 
 
 function createFollowCamera(scene, target) {
-    let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
+        let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
     camera.radius = 50; // how far from the object to follow
 	camera.heightOffset = 14; // how high above the object to place the camera
 	camera.rotationOffset = 180; // the viewing angle
@@ -325,15 +323,7 @@ function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
 
-    boxMesh = new BABYLON.MeshBuilder.CreateBox("boxMesh", {height:1, depth:1, width:1}, scene);
-    let boxMeshMaterial = new BABYLON.StandardMaterial("boxMeshMaterial", scene);
-    boxMeshMaterial.diffuseColor = new BABYLON.Color3.Red;
-    boxMeshMaterial.emissiveColor = new BABYLON.Color3.Blue;
-    boxMesh.material = boxMeshMaterial;
-    boxMesh.position = new BABYLON.Vector3(0,23, 0);
-   
-
-    /*
+  /*
     superballMesh.parent = boxMesh; //1
     superballMesh.setParent(boxMesh); //2
     boxMesh.addChild(superballMesh); //3
@@ -345,14 +335,14 @@ function createSuperBall(scene) {
     localAxes.zAxis.parent = superballMesh;
     */
     
-    boxMesh.speed = 1;
-    boxMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
+    superballMesh.speed = 1;
+    superballMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
 
-    boxMesh.move = () => {
+    superballMesh.move = () => {
 
         let yMovement = 0;
        
-        if (boxMesh.position.y > 2) {
+        if (superballMesh.position.y > 2) {
             zMovement = 0;
             yMovement = -2;
         } 
@@ -360,43 +350,43 @@ function createSuperBall(scene) {
        
 
         if(inputStates.up) {
-            boxMesh.moveWithCollisions(boxMesh.frontVector.multiplyByFloats(boxMesh.speed, boxMesh.speed, boxMesh.speed));
+            superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
             detectCollision(scene);
         }    
         if(inputStates.down) {
-            boxMesh.moveWithCollisions(boxMesh.frontVector.multiplyByFloats(-boxMesh.speed, -boxMesh.speed, -boxMesh.speed));
+            superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(-superballMesh.speed, -superballMesh.speed, -superballMesh.speed));
             detectCollision(scene);
         }    
         if(inputStates.left) {
-            boxMesh.rotation.y -= 0.02;
-            boxMesh.frontVector = new BABYLON.Vector3(Math.sin(boxMesh.rotation.y), 0, Math.cos(boxMesh.rotation.y));
+            superballMesh.rotation.y -= 0.02;
+            superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
             detectCollision(scene);
         }    
         if(inputStates.right) {
-            boxMesh.rotation.y += 0.02;
-            boxMesh.frontVector = new BABYLON.Vector3(Math.sin(boxMesh.rotation.y), 0, Math.cos(boxMesh.rotation.y));
+            superballMesh.rotation.y += 0.02;
+            superballMesh.frontVector = new BABYLON.Vector3(Math.sin(superballMesh.rotation.y), 0, Math.cos(superballMesh.rotation.y));
             detectCollision(scene);
         }
 
-        superballMesh.position = new BABYLON.Vector3(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
+        //superballMesh.position = new BABYLON.Vector3(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
         superball.updateParticles();
 
     }
 
 
        
-    boxMesh.canJump = true;
-    boxMesh.jumpAfter = 2; // in seconds
+    superballMesh.canJump = true;
+    superballMesh.jumpAfter = 2; // in seconds
 
 
-    boxMesh.jump = function(){
+    superballMesh.jump = function(){
 
         if(!inputStates.space) {
             updatePosition()
             return;
         }
 
-        if(!boxMesh.canJump){ 
+        if(!superballMesh.canJump){ 
             updatePosition()
             //console.log("notjump2");
             return ; 
@@ -407,23 +397,23 @@ function createSuperBall(scene) {
 
 
         //superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
-        let origin = new BABYLON.Vector3(boxMesh.position.x, 1000, boxMesh.position.z);
+        let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
         let direction = new BABYLON.Vector3(0, -1, 0);
         let ray = new BABYLON.Ray(origin, direction, 10000);  
             
         // compute intersection point with the ground
         let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
         let groundHeight = pickInfo.pickedPoint.y;
-        if(boxMesh.position.y<groundHeight+15){
-            boxMesh.position.y = boxMesh.position.y + 1;
+        if(superballMesh.position.y<groundHeight+15){
+            superballMesh.position.y = superballMesh.position.y + 1;
         }
 
-        superballMesh.canJump = false;  
+       // superballMesh.canJump = false;  
         detectCollision(scene);
        
         setTimeout(() => {
-            boxMesh.canJump = true;
-        }, 1000 * boxMesh.jumpAfter)
+            superballMesh.canJump = true;
+        }, 1000 * superballMesh.jumpAfter)
 
     }
 
@@ -435,15 +425,16 @@ function createSuperBall(scene) {
 }
 
 function updatePosition(){
-    let origin = new BABYLON.Vector3(boxMesh.position.x, 1000, boxMesh.position.z);
+    let superballMesh = scene.getMeshByName("heroSuperball");
+    let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
     let direction = new BABYLON.Vector3(0, -1, 0);
     let ray = new BABYLON.Ray(origin, direction, 10000);  
         
     // compute intersection point with the ground
     let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
     let groundHeight = pickInfo.pickedPoint.y;
-    if(boxMesh.position.y>groundHeight+4.5){
-        boxMesh.position.y = boxMesh.position.y - 0.5;
+    if(superballMesh.position.y>groundHeight+4.5){
+        superballMesh.position.y = superballMesh.position.y - 0.5;
     }
 }
 
@@ -477,7 +468,6 @@ function createVillains(nbBall,scene){
 function detectCollision(scene){
     
     let player = scene.getMeshByName("heroSuperball");
-    let boxPlayer = scene.getMeshByName("boxMesh");
 
 
     for(let i = 0; i < otherBallsMesh.length ; i++){
@@ -491,8 +481,8 @@ function detectCollision(scene){
             remainingBalls--;
             touchedBalls++;
 
-            if (boxPlayer.speed<3) {
-                boxPlayer.speed += 0.1;
+            if (player.speed<3) {
+                player.speed += 0.1;
             }
 
             //console.log("Balles restantes : " + remainingBalls);
@@ -516,7 +506,7 @@ function detectCollision(scene){
         if(player.intersectsMesh(ball)){
 
             touchedBalls--;
-            boxPlayer.speed = 1;
+            player.speed = 1;
           
         }
     }
