@@ -20,6 +20,8 @@ let isPlaying = true;
 let startButton;
 let restartButton;
 let boolOnRestartButton = false;
+let lifeHearts = 5;
+let liveblock = new BABYLON.GUI.TextBlock();
 
 window.onload = startGame;
 
@@ -44,7 +46,7 @@ function startGame() {
                     superball.move();
                     superball.jump();
                     //scene.render();
-                    if (remainingBalls == 0) {
+                    if ((remainingBalls == 0)||(lifeHearts==0)) {
                         isPlaying = false;
                     }
                 }
@@ -177,6 +179,8 @@ function createScene() {
     textblock.left = 410;
     textblock.color = "black";
     advancedTexture.addControl(textblock);
+
+    displayLives();
     
     superball = createSuperBall(scene);
 
@@ -193,6 +197,21 @@ function createScene() {
     //superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
     scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);    
     return scene;
+}
+
+function displayLives(){
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("lifeHearts");
+    let string = "❤❤❤❤❤";
+    liveblock.text = string.substring(0,lifeHearts);
+    /*
+    for(let i=0; i<lifeHearts; i++){
+        liveblock.text += string; 
+    }*/
+    liveblock.fontSize = 24;
+    liveblock.top = -275;
+    liveblock.left = -400;
+    liveblock.color = "black";
+    advancedTexture.addControl(liveblock);
 }
 
 function createGround(scene) {
@@ -376,7 +395,8 @@ function createSuperBall(scene) {
 
        
     superballMesh.canJump = true;
-    superballMesh.jumpAfter = 2; // in seconds
+    superballMesh.isJumping = false;
+    superballMesh.jumpAfter = 0.0001; // in seconds
 
 
     superballMesh.jump = function(){
@@ -395,6 +415,13 @@ function createSuperBall(scene) {
         else{
             console.log("jump");
 
+            /*
+            superballMesh.canJump = false;
+            
+            setTimeout(() => {
+                this.canJump = true;
+            }, 1000 * this.jumpAfter);*/
+
 
         //superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
         let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
@@ -404,16 +431,27 @@ function createSuperBall(scene) {
         // compute intersection point with the ground
         let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
         let groundHeight = pickInfo.pickedPoint.y;
-        if(superballMesh.position.y<groundHeight+15){
+        if(superballMesh.position.y<=groundHeight+25){
             superballMesh.position.y = superballMesh.position.y + 1;
+
+            /*
+            if(superballMesh.position.y!=groundHeight+4.5){
+                superballMesh.isJumping = true;
+                superballMesh.canJump = false;
+            }*/
         }
 
-       // superballMesh.canJump = false;  
+        /*
+        if(superballMesh.position.y==groundHeight+4.5){
+            superballMesh.isJumping = false;
+            superballMesh.canJump = true;
+        }*/
         detectCollision(scene);
        
+        /*
         setTimeout(() => {
             superballMesh.canJump = true;
-        }, 1000 * superballMesh.jumpAfter)
+        }, 1000 * superballMesh.jumpAfter)*/
 
     }
 
@@ -433,7 +471,7 @@ function updatePosition(){
     // compute intersection point with the ground
     let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
     let groundHeight = pickInfo.pickedPoint.y;
-    if(superballMesh.position.y>groundHeight+4.5){
+    if(superballMesh.position.y>=groundHeight+4.5){
         superballMesh.position.y = superballMesh.position.y - 0.5;
     }
 }
@@ -457,6 +495,7 @@ function createVillains(nbBall,scene){
     for(let i = 0; i < nbBall; i++) {
         spheresMesh[i] = BABYLON.MeshBuilder.CreateSphere("villain" +i, {diameter: 7, segments: 64}, scene);
         spheresMesh[i].physicsImpostor = new BABYLON.PhysicsImpostor(spheresMesh[i], BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.01, restitution: 0.2 }, scene);
+        spheresMesh[i].touched = false;
         //sphereMesh[i].diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", this.scene);
 
         spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene, "images/spheres/snow.jpg");
@@ -504,9 +543,24 @@ function detectCollision(scene){
         let ball =  villainBallsMesh[i];
 
         if(player.intersectsMesh(ball)){
-
+            
             touchedBalls--;
+            if(ball.touched == false){
+                lifeHearts--;
+                ball.touched = true;
+            }
+            
+            //console.log(lifeHearts);
+            let string = "❤❤❤❤❤";
+            liveblock.text = string.substring(0,lifeHearts);
+
+
+
             player.speed = 1;
+
+            setTimeout(() => {
+                ball.touched = false;
+            }, 5000 );
           
         }
     }
