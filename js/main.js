@@ -413,7 +413,7 @@ function createSuperBall(scene) {
         }
 
         else{
-            console.log("jump");
+            //console.log("jump");
 
             /*
             superballMesh.canJump = false;
@@ -496,9 +496,9 @@ function createVillains(nbBall,scene){
         spheresMesh[i] = BABYLON.MeshBuilder.CreateSphere("villain" +i, {diameter: 7, segments: 64}, scene);
         spheresMesh[i].physicsImpostor = new BABYLON.PhysicsImpostor(spheresMesh[i], BABYLON.PhysicsImpostor.SphereImpostor, { mass: 0.01, restitution: 0.2 }, scene);
         spheresMesh[i].touched = false;
-        //sphereMesh[i].diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", this.scene);
 
         spheres[i] = new Sphere(spheresMesh[i],i,0.2,scene, "images/spheres/snow.jpg");
+        spheresMesh[i].material.alpha = 1;
     }
     villainBallsMesh = spheresMesh;
     return spheres;
@@ -543,23 +543,29 @@ function detectCollision(scene){
         let ball =  villainBallsMesh[i];
 
         if(player.intersectsMesh(ball)){
+            let previousMaterial = player.material;
             
             touchedBalls--;
             if(ball.touched == false){
                 lifeHearts--;
                 ball.touched = true;
+                player.material.diffuseTexture = new BABYLON.Texture("images/spheres/red.jpg", scene);
+                player.material.alpha = 1;
             }
             
             //console.log(lifeHearts);
             let string = "❤❤❤❤❤";
             liveblock.text = string.substring(0,lifeHearts);
 
+            //ball.material = temporaryMaterial;
 
 
             player.speed = 1;
 
             setTimeout(() => {
                 ball.touched = false;
+                player.previousMaterial;
+                //player.material.diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", scene); 
             }, 5000 );
           
         }
