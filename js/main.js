@@ -404,7 +404,7 @@ function createSuperBall(scene) {
         // compute intersection point with the ground
         let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
         let groundHeight = pickInfo.pickedPoint.y;
-        if(superballMesh.position.y<groundHeight+15){
+        if(superballMesh.position.y<groundHeight+30){
             superballMesh.position.y = superballMesh.position.y + 1;
         }
 
