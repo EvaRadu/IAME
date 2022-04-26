@@ -29,6 +29,8 @@ function startGame() {
     canvas = document.querySelector("#myCanvas");
     engine = new BABYLON.Engine(canvas, true);
     scene = createScene();
+    scene.assetsManager.load();
+
 
 
     // modify some default settings (i.e pointer events to prevent cursor to go 
@@ -37,6 +39,7 @@ function startGame() {
 
     superball = scene.getMeshByName("heroSuperball");
     startButton = createButtonLetsPlay();
+    let finalScreen = false;
 
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
@@ -51,8 +54,11 @@ function startGame() {
                     }
                 }
                 else {
+                    if(finalScreen==false){
                     var textblockWL = WinOrLose();
                     reStartButton = reStartButton();
+                    finalScreen = true;
+                    }
                     //scene = createScene(); 
                     //startButton = createButtonLetsPlay();
      
@@ -62,6 +68,7 @@ function startGame() {
             scene.render();
             
     });
+
     
 }
 
@@ -101,7 +108,11 @@ function WinOrLose() {
     textblock = new BABYLON.GUI.TextBlock();           
     if (remainingBalls <= balls/2) {
         textblock.text = "Congrats : you win !";
+        scene.assets.winGame.setVolume(0.6);
+        scene.assets.winGame.play();
     } else {
+        scene.assets.loseGame.setVolume(0.6);
+        scene.assets.loseGame.play();
         textblock.text = "Mwahaha : you lost !";
     }
     textblock.fontSize = 24;
@@ -166,9 +177,11 @@ function createScene() {
     let scene = new BABYLON.Scene(engine);
     scene.enablePhysics();
 
-    let ground = createGround(scene);
+    createGround(scene);
+    scene.assetsManager = configureAssetManager(scene);
 
-    music = new BABYLON.Sound("backgroundMusic", "sounds/sound1.mp3", scene, null, { loop: true, autoplay: true });
+
+    //music = new BABYLON.Sound("backgroundMusic", "sounds/sound1.mp3", scene, null, { loop: true, autoplay: true });
 
    
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("score");
@@ -195,9 +208,139 @@ function createScene() {
 
 
     //superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
-    scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);    
+    scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);  
+    
+    loadSounds(scene);
     return scene;
 }
+
+
+function loadSounds(scene) {
+    var assetsManager = scene.assetsManager;
+    let binaryTask = assetsManager.addBinaryFileTask(
+      "eatBall",
+      "sounds/eatBall.wav"
+    );
+    binaryTask.onSuccess = function (task) {
+      scene.assets.eatBall = new BABYLON.Sound(
+        "eatBall",
+        task.data,
+        scene,
+        null,
+        {
+            loop: false,
+            spatialSound: true,
+            autoplay: false
+        }
+      );
+    };
+
+    binaryTask = assetsManager.addBinaryFileTask(
+        "enemy",
+        "sounds/enemy.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.enemy = new BABYLON.Sound(
+          "enemy",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              spatialSound: true,
+              autoplay: false
+          }
+        );
+      };
+
+    binaryTask = assetsManager.addBinaryFileTask(
+        "winGame",
+        "sounds/winGame.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.winGame = new BABYLON.Sound(
+          "winGame",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              autoplay: false
+          }
+        );
+      };
+
+      binaryTask = assetsManager.addBinaryFileTask(
+        "loseGame",
+        "sounds/loseGame.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.loseGame = new BABYLON.Sound(
+          "loseGame",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              autoplay: false
+          }
+        );
+      };
+
+    binaryTask = assetsManager.addBinaryFileTask(
+        "permanentMusic",
+        "sounds/sound1.mp3"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.permanentMusic = new BABYLON.Sound(
+          "permanentMusic",
+          task.data,
+          scene,
+          null,
+          {
+            loop: true,
+            autoplay: true,
+            volume: 0.4
+          }
+        );
+      };
+  }
+
+function configureAssetManager(scene) {
+    // useful for storing references to assets as properties. i.e scene.assets.cannonsound, etc.
+    scene.assets = {};
+  
+    let assetsManager = new BABYLON.AssetsManager(scene);
+  
+    assetsManager.onProgress = function (
+      remainingCount,
+      totalCount,
+      lastFinishedTask
+    ) {
+      engine.loadingUIText =
+        "We are loading the scene. " +
+        remainingCount +
+        " out of " +
+        totalCount +
+        " items still need to be loaded.";
+      console.log(
+        "We are loading the scene. " +
+          remainingCount +
+          " out of " +
+          totalCount +
+          " items still need to be loaded."
+      );
+    };
+  
+    assetsManager.onFinish = function (tasks) {
+      engine.runRenderLoop(function () {
+        scene.render();
+      });
+    };
+  
+    return assetsManager;
+  }
+
 
 function displayLives(){
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("lifeHearts");
@@ -272,13 +415,13 @@ function createLights(scene) {
 
 
 function createFollowCamera(scene, target) {
-        let camera = new BABYLON.FollowCamera("superballFollowCamera", target.position, scene, target);
+    let camera = new BABYLON.FollowCamera("superballFollowCamera", new BABYLON.Vector3(0,50,0), scene, target);
     camera.radius = 50; // how far from the object to follow
 	camera.heightOffset = 14; // how high above the object to place the camera
 	camera.rotationOffset = 180; // the viewing angle
 	camera.cameraAcceleration = .1; // how fast to move
 	camera.maxCameraSpeed = 5; // speed limit
-    
+
 
     return camera;
 }
@@ -342,18 +485,6 @@ function createSuperBall(scene) {
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
 
-  /*
-    superballMesh.parent = boxMesh; //1
-    superballMesh.setParent(boxMesh); //2
-    boxMesh.addChild(superballMesh); //3
-*/
-    /*
-    const localAxes = new BABYLON.AxesViewer(scene, 10);
-    localAxes.xAxis.parent = superballMesh;
-    localAxes.yAxis.parent = superballMesh;
-    localAxes.zAxis.parent = superballMesh;
-    */
-    
     superballMesh.speed = 1;
     superballMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
 
@@ -413,15 +544,7 @@ function createSuperBall(scene) {
         }
 
         else{
-            //console.log("jump");
-
-            /*
-            superballMesh.canJump = false;
-            
-            setTimeout(() => {
-                this.canJump = true;
-            }, 1000 * this.jumpAfter);*/
-
+           
 
         //superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
         let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
@@ -434,25 +557,10 @@ function createSuperBall(scene) {
         if(superballMesh.position.y<=groundHeight+25){
             superballMesh.position.y = superballMesh.position.y + 1;
 
-            /*
-            if(superballMesh.position.y!=groundHeight+4.5){
-                superballMesh.isJumping = true;
-                superballMesh.canJump = false;
-            }*/
         }
-
-        /*
-        if(superballMesh.position.y==groundHeight+4.5){
-            superballMesh.isJumping = false;
-            superballMesh.canJump = true;
-        }*/
+     
         detectCollision(scene);
-       
-        /*
-        setTimeout(() => {
-            superballMesh.canJump = true;
-        }, 1000 * superballMesh.jumpAfter)*/
-
+     
     }
 
     
@@ -527,15 +635,10 @@ function detectCollision(scene){
             //console.log("Balles restantes : " + remainingBalls);
             //console.log("Balles touchées : " + touchedBalls);
             textblock.text = "Remaining balls : " + remainingBalls;
-            
-            /*
-            var winSound = new BABYLON.Sound("winSound", "sounds/win.wav", scene);
-            music.pause();
-            winSound.play();
-            music.play();
-            */
-            
-
+            scene.assets.eatBall.setPosition(player.position);
+            scene.assets.eatBall.setVolume(0.6);
+            scene.assets.eatBall.play();
+     
         }
     }
 
@@ -543,7 +646,6 @@ function detectCollision(scene){
         let ball =  villainBallsMesh[i];
 
         if(player.intersectsMesh(ball)){
-            let previousMaterial = player.material;
             
             touchedBalls--;
             if(ball.touched == false){
@@ -551,6 +653,10 @@ function detectCollision(scene){
                 ball.touched = true;
                 player.material.diffuseTexture = new BABYLON.Texture("images/spheres/red.jpg", scene);
                 player.material.alpha = 1;
+                otherBallsMesh.splice(i,1);  
+                scene.assets.enemy.setPosition(player.position);
+                scene.assets.enemy.setVolume(0.8);
+                scene.assets.enemy.play();
             }
             
             //console.log(lifeHearts);
@@ -564,7 +670,7 @@ function detectCollision(scene){
 
             setTimeout(() => {
                 ball.touched = false;
-                player.previousMaterial;
+                villainBallsMesh.push(ball);
                 //player.material.diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", scene); 
             }, 5000 );
           
