@@ -45,7 +45,6 @@ function startGame() {
         let deltaTime = engine.getDeltaTime(); 
             if (bool) {
                 if ((isPlaying) && (bool)) {
-                    //superball.move();
                     superball.move();
                     superball.jump();
                     //scene.render();
@@ -527,10 +526,12 @@ function createSuperBall(scene) {
        
     superballMesh.canJump = true;
     superballMesh.isJumping = false;
-    superballMesh.jumpAfter = 0.0001; // in seconds
+    superballMesh.jumpAfter = 0.1; // in seconds
 
 
     superballMesh.jump = function(){
+
+        console.log(superballMesh.canJump)
 
         if(!inputStates.space) {
             updatePosition()
@@ -556,15 +557,25 @@ function createSuperBall(scene) {
         let groundHeight = pickInfo.pickedPoint.y;
         if(superballMesh.position.y<=groundHeight+25){
             superballMesh.position.y = superballMesh.position.y + 1;
-
+            superballMesh.isJumping=true;
         }
+        //else { superballMesh.canJump=false; }
      
         detectCollision(scene);
      
     }
 
+
+
+    setTimeout(() => {
+        this.canJump = false;
+        console.log("NOW");
+      }, 10000 * this.jumpAfter);
     
-    
+    setTimeout(()=> {
+        this.canJump = true;
+        console.log("NOW2")
+    }, 18000 * this.jumpAfter)
     }
  
     return superballMesh;
@@ -582,6 +593,7 @@ function updatePosition(){
     if(superballMesh.position.y>=groundHeight+4.5){
         superballMesh.position.y = superballMesh.position.y - 0.5;
     }
+    
 }
 
 function createBalls(nbBall,scene){
