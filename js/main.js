@@ -2,14 +2,11 @@ import Sphere from "./Sphere.js";
 import SuperBall from "./SuperBall.js";
 
 let canvas;
-let camera;
 let engine;
 let scene;
 let superball;
 let otherBallsMesh;
 let villainBallsMesh;
-let ground;
-var music;
 let remainingBalls = 20;
 let balls = remainingBalls;
 let touchedBalls = 0;
@@ -22,6 +19,9 @@ let restartButton;
 let boolOnRestartButton = false;
 let lifeHearts = 5;
 let liveblock = new BABYLON.GUI.TextBlock();
+let screenWidth = window.screen.width;
+let screenHeight = window.screen.height;
+
 
 window.onload = startGame;
 
@@ -115,8 +115,8 @@ function WinOrLose() {
         textblock.text = "Mwahaha : you lost !";
     }
     textblock.fontSize = 24;
-    textblock.top = 200;
-    textblock.left = 200;
+    textblock.top = (screenHeight * 200)/720;
+    textblock.left = (screenWidth * 200)/1280;
     textblock.color = "black";
     advancedTextureGameOver.addControl(textblock);
     return textblock;
@@ -151,7 +151,7 @@ function createTimer(i) { // i seconds
     var textBlock = new BABYLON.GUI.TextBlock("text", "Remaining time : " + new String(i) + " seconds");
     textBlock.color = "black";
     textBlock.fontSize = 24;   
-    textBlock.top = -275;
+    textBlock.top = (screenHeight * -275) / 720;
     textBlock.left = 0;
 
     advancedTextureTime.addControl(textBlock);
@@ -187,8 +187,8 @@ function createScene() {
     textblock = new BABYLON.GUI.TextBlock();
     textblock.text = "Remaining balls : " + remainingBalls;
     textblock.fontSize = 24;
-    textblock.top = -275;
-    textblock.left = 410;
+    textblock.top = (screenHeight * (-265))/720;
+    textblock.left = (screenWidth * 410)/1280;
     textblock.color = "black";
     advancedTexture.addControl(textblock);
 
@@ -350,8 +350,8 @@ function displayLives(){
         liveblock.text += string; 
     }*/
     liveblock.fontSize = 24;
-    liveblock.top = -275;
-    liveblock.left = -400;
+    liveblock.top = (screenHeight * -275) / 720;
+    liveblock.left = (screenWidth * -400) / 1280;
     liveblock.color = "black";
     advancedTexture.addControl(liveblock);
 }
@@ -531,8 +531,6 @@ function createSuperBall(scene) {
 
     superballMesh.jump = function(){
 
-        console.log(superballMesh.canJump)
-
         if(!inputStates.space) {
             updatePosition()
             return;
@@ -569,12 +567,12 @@ function createSuperBall(scene) {
 
     setTimeout(() => {
         this.canJump = false;
-        console.log("NOW");
+        //console.log("NOW");
       }, 10000 * this.jumpAfter);
     
     setTimeout(()=> {
         this.canJump = true;
-        console.log("NOW2")
+        //console.log("NOW2")
     }, 18000 * this.jumpAfter)
     }
  
@@ -583,9 +581,11 @@ function createSuperBall(scene) {
 
 function updatePosition(){
     let superballMesh = scene.getMeshByName("heroSuperball");
+    console.log(superballMesh.position)
     let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
     let direction = new BABYLON.Vector3(0, -1, 0);
     let ray = new BABYLON.Ray(origin, direction, 10000);  
+
         
     // compute intersection point with the ground
     let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
@@ -692,7 +692,9 @@ function detectCollision(scene){
 }
 
 
-window.addEventListener("resize", () => {
+window.addEventListener("resize", (event) => {
+    screenWidth = event.target.innerWidth;
+    screenHeight = event.target.innerHeight;
     engine.resize()
 });
 
