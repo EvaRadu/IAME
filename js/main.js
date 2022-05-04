@@ -21,6 +21,8 @@ let lifeHearts = 5;
 let liveblock = new BABYLON.GUI.TextBlock();
 let screenWidth = window.screen.width;
 let screenHeight = window.screen.height;
+let door1;
+let door2;
 
 
 window.onload = startGame;
@@ -196,8 +198,11 @@ function createScene() {
     
     superball = createSuperBall(scene);
 
+    createTeleportation(scene);
+
     let otherBalls = createBalls(remainingBalls,scene);
     let villainBalls = createVillains(remainingBalls/2, scene);
+
 
     let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera;
@@ -211,6 +216,55 @@ function createScene() {
     
     loadSounds(scene);
     return scene;
+}
+
+function createTeleportation(scene){
+    let doorMaterial1 = new BABYLON.StandardMaterial("doorMaterial1" , scene);
+    let doorMaterial2 = new BABYLON.StandardMaterial("doorMaterial2" , scene);
+    /* FIRST DOOR */ 
+    door1 = BABYLON.MeshBuilder.CreateBox("door1", {height: 25, width: 25, depth: 1}, scene);
+    door1.position = new BABYLON.Vector3(-70,16,191);
+
+    doorMaterial1.diffuseColor = BABYLON.Color3.Blue();
+    doorMaterial1.alpha = 0.4;
+
+    door1.material = doorMaterial1;
+
+    var blueLight =  new BABYLON.SpotLight("blueLight", new BABYLON.Vector3(0, 30, -10), new BABYLON.Vector3(0, -1, 0), -Math.PI/3, 2, scene);
+    blueLight.diffuse = new BABYLON.Color3.Blue();
+    blueLight.position = new BABYLON.Vector3(door1.position.x, 40, door1.position.z);
+
+    /* SECOND DOOR */
+    door2 = BABYLON.MeshBuilder.CreateBox("door1", {height: 25, width: 25, depth: 1}, scene);
+    door2.position = new BABYLON.Vector3(167,19,-71);
+
+    doorMaterial2.diffuseColor = BABYLON.Color3.Red();
+    doorMaterial2.alpha = 0.4;
+
+    door2.material = doorMaterial2;
+
+    var redLight =  new BABYLON.SpotLight("redLight", new BABYLON.Vector3(0, 30, -10), new BABYLON.Vector3(0, -1, 0), -Math.PI/3, 2, scene);
+    redLight.diffuse = new BABYLON.Color3.Red();
+    redLight.position = new BABYLON.Vector3(door2.position.x, 40, door2.position.z);
+
+}
+
+function detectTeleportation(scene){
+    let player = scene.getMeshByName("heroSuperball");
+
+    if(player.intersectsMesh(door1)){
+        scene.assets.teleportation.setPosition(player.position);
+        scene.assets.teleportation.setVolume(1);
+        scene.assets.teleportation.play();
+        player.position = new BABYLON.Vector3(169,10,-53);
+    }
+    if(player.intersectsMesh(door2)){
+        scene.assets.teleportation.setPosition(player.position);
+        scene.assets.teleportation.setVolume(1);
+        scene.assets.teleportation.play();
+        player.position = new BABYLON.Vector3(-68,6,161);
+    }
+
 }
 
 
@@ -233,6 +287,24 @@ function loadSounds(scene) {
         }
       );
     };
+
+    binaryTask = assetsManager.addBinaryFileTask(
+        "teleportation",
+        "sounds/teleportation.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.teleportation = new BABYLON.Sound(
+          "teleportation",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              spatialSound: true,
+              autoplay: false
+          }
+        );
+      };
 
     binaryTask = assetsManager.addBinaryFileTask(
         "enemy",
@@ -303,6 +375,8 @@ function loadSounds(scene) {
           }
         );
       };
+
+    
   }
 
 function configureAssetManager(scene) {
@@ -357,9 +431,9 @@ function displayLives(){
 }
 
 function createGround(scene) {
-    let width = 2000;
-    let height = 2000
-    const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:100, onReady: onGroundCreated};
+    let width = 600;
+    let height = 600;
+    const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:50, onReady: onGroundCreated};
     //scene is optional and defaults to the current scene
     const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
 
@@ -404,7 +478,7 @@ function createLights(scene) {
     // i.e sun light with all light rays parallels, the vector is the direction.
     //let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
     let light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-    light.intensity = 0.9;
+    light.intensity = 0.85;
 
     /*light1.diffuse = new BABYLON.Color3(1, 0, 0);
 	light1.specular = new BABYLON.Color3(0,1,0);
@@ -489,15 +563,6 @@ function createSuperBall(scene) {
 
     superballMesh.move = () => {
 
-        let yMovement = 0;
-       
-        if (superballMesh.position.y > 2) {
-            zMovement = 0;
-            yMovement = -2;
-        } 
-
-       
-
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
             detectCollision(scene);
@@ -519,6 +584,7 @@ function createSuperBall(scene) {
 
         //superballMesh.position = new BABYLON.Vector3(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
         superball.updateParticles();
+        detectTeleportation(scene);
 
     }
 
@@ -581,10 +647,11 @@ function createSuperBall(scene) {
 
 function updatePosition(){
     let superballMesh = scene.getMeshByName("heroSuperball");
-    console.log(superballMesh.position)
+    //console.log(superballMesh.position);
     let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
     let direction = new BABYLON.Vector3(0, -1, 0);
     let ray = new BABYLON.Ray(origin, direction, 10000);  
+
 
         
     // compute intersection point with the ground

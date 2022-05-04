@@ -6,7 +6,7 @@ export default class sphereMesh extends Sphere {
         sphereMesh.position.x = 0;
         //sphereMesh.position.y = 5;     
         sphereMesh.position.z = 0;
-        sphereMesh.speed = 1;
+        sphereMesh.speed = 4;
         sphereMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
         
         /*sphereMesh.onCollideObservable.add(function () {
