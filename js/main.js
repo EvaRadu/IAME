@@ -254,13 +254,13 @@ function detectTeleportation(scene){
 
     if(player.intersectsMesh(door1)){
         scene.assets.teleportation.setPosition(player.position);
-        scene.assets.teleportation.setVolume(1);
+        scene.assets.teleportation.setVolume(2);
         scene.assets.teleportation.play();
         player.position = new BABYLON.Vector3(169,10,-53);
     }
     if(player.intersectsMesh(door2)){
         scene.assets.teleportation.setPosition(player.position);
-        scene.assets.teleportation.setVolume(1);
+        scene.assets.teleportation.setVolume(2);
         scene.assets.teleportation.play();
         player.position = new BABYLON.Vector3(-68,6,161);
     }
