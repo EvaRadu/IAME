@@ -1,6 +1,9 @@
 import Sphere from "./Sphere.js";
 import SuperBall from "./SuperBall.js";
 
+let MYVAR;
+let level;
+let created = false;
 let canvas;
 let engine;
 let scene;
@@ -25,25 +28,24 @@ let screenHeight = window.screen.height;
 
 window.onload = startGame;
 
+
 function startGame() {
     canvas = document.querySelector("#myCanvas");
     engine = new BABYLON.Engine(canvas, true);
-    scene = createScene();
-    scene.assetsManager.load();
 
-
+    scene = createDefaultScene();
+    startButton = createButtonLetsPlay();
+    
 
     // modify some default settings (i.e pointer events to prevent cursor to go 
     // out of the game window)
-    modifySettings();
 
-    superball = scene.getMeshByName("heroSuperball");
-    startButton = createButtonLetsPlay();
+    
     let finalScreen = false;
 
     engine.runRenderLoop(() => {
         let deltaTime = engine.getDeltaTime(); 
-            if (bool) {
+            if (bool & created) {
                 if ((isPlaying) && (bool)) {
                     superball.move();
                     superball.jump();
@@ -58,10 +60,6 @@ function startGame() {
                     reStartButton = reStartButton();
                     finalScreen = true;
                     }
-                    //scene = createScene(); 
-                    //startButton = createButtonLetsPlay();
-     
-                    //scene.render();
                 }
             }
             scene.render();
@@ -70,6 +68,7 @@ function startGame() {
 
     
 }
+
 
 function erase() {
     scene.dispose();
@@ -83,6 +82,94 @@ function erase() {
     isPlaying = false;
 }
 
+/*function aux(nb, level1, level2, level3) {
+    level1.dispose();
+    level2.dispose();
+    level3.dispose();
+    scene.dispose();
+    level = nb;
+    scene = createScene();
+    scene.assetsManager.load();
+    modifySettings();
+    superball = scene.getMeshByName("heroSuperball");
+    bool = true;
+    createTimer(90); 
+}*/
+
+function chooseLevel() {
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    var level1 = BABYLON.GUI.Button.CreateSimpleButton("level1", "LEVEL1");
+    level1.width = "150px"
+    level1.height = "40px";
+    level1.color = "white";
+    level1.left = "10px";
+    level1.right = "10px";
+    level1.cornerRadius = 20;
+    level1.background = "purple";
+    level1.onPointerUpObservable.add(function() {
+        level1.dispose();
+        level2.dispose();
+        level3.dispose();
+        scene.dispose();
+        level = 1;
+        scene = createScene();
+        scene.assetsManager.load();
+        modifySettings();
+        superball = scene.getMeshByName("heroSuperball");
+        bool = true;
+        createTimer(90); 
+    });
+    advancedTexture.addControl(level1);
+
+
+    var level2 = BABYLON.GUI.Button.CreateSimpleButton("level2", "LEVEL 2");
+    level2.width = "150px"
+    level2.height = "40px";
+    level2.left = "100px";
+    level2.right = "100px";
+    level2.color = "white";
+    level2.cornerRadius = 20;
+    level2.background = "blue";
+    level2.onPointerUpObservable.add(function() {
+        level1.dispose();
+        level2.dispose();
+        level3.dispose();
+        scene.dispose();
+        level = 2;
+        bool = true;
+        scene = createScene();
+        scene.assetsManager.load();
+        modifySettings();
+        superball = scene.getMeshByName("heroSuperball");
+        createTimer(90); 
+    });
+    advancedTexture.addControl(level2);
+
+
+    var level3 = BABYLON.GUI.Button.CreateSimpleButton("level3", "LEVEL 3");
+    level3.width = "150px"
+    level3.height = "40px";
+    level3.color = "white";
+    level3.left = "150px";
+    level3.right = "150px";
+    level3.cornerRadius = 20;
+    level3.background = "purple";
+    level3.onPointerUpObservable.add(function() {
+        level1.dispose();
+        level2.dispose();
+        level3.dispose();
+        scene.dispose();
+        level = 3
+        bool = true;
+        scene = createScene();
+        superball = scene.getMeshByName("heroSuperball");
+        createTimer(90); 
+    });
+    advancedTexture.addControl(level3);
+
+}
+
 function createButtonLetsPlay() {
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
@@ -94,8 +181,7 @@ function createButtonLetsPlay() {
     button1.background = "pink";
     button1.onPointerUpObservable.add(function() {
         button1.dispose();
-        bool = true;
-        createTimer(90); 
+        chooseLevel(); 
     });
     advancedTexture.addControl(button1);
     return button1;
@@ -172,11 +258,32 @@ function createTimer(i) { // i seconds
     return timer;
 }
 
+
+
+
+
+/*DEFAULT SCENE */
+
+function createDefaultScene() {
+    const scene = new BABYLON.Scene(engine);
+    //scene.clearColor = new BABYLON.Color3.White;
+    const alpha =  Math.PI/4;
+    const beta = Math.PI/3;
+    const radius = 8;
+    const target = new BABYLON.Vector3(0, 0, 0);
+
+    const camera = new BABYLON.ArcRotateCamera("Camera", alpha, beta, radius, target, scene);
+    camera.attachControl(canvas, true);
+    return scene;
+}
+
+/*NORMAL SCENE*/
+
 function createScene() {
     let scene = new BABYLON.Scene(engine);
     scene.enablePhysics();
 
-    createGround(scene);
+    createGround(scene, 600,600);
     scene.assetsManager = configureAssetManager(scene);
 
 
@@ -195,6 +302,7 @@ function createScene() {
     displayLives();
     
     superball = createSuperBall(scene);
+    created = true;
 
     let otherBalls = createBalls(remainingBalls,scene);
     let villainBalls = createVillains(remainingBalls/2, scene);
@@ -210,8 +318,51 @@ function createScene() {
     scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);  
     
     loadSounds(scene);
+    scene.assetsManager.load();
+    modifySettings();
     return scene;
 }
+
+function createGround(scene, width, height) {
+        
+    const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:50, onReady: onGroundCreated};    
+    switch(level) {
+        case 1 :
+            var ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene);
+            console.log("la");
+            break;
+        case 2 :
+            var ground = BABYLON.MeshBuilder.CreateGround("gdhm", groundOptions, scene)
+            break;
+        default :
+            var ground = BABYLON.MeshBuilder.CreateGround("gdhm", groundOptions, scene)
+    }
+    
+
+    function onGroundCreated() {
+        const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol19.jpg");
+        groundMaterial.diffuseTexture.uScale = 100;
+        groundMaterial.diffuseTexture.vScale = 100;
+        ground.material = groundMaterial;
+        // to be taken into account by collision detection
+        ground.checkCollisions = true;
+        //groundMaterial.wireframe=true;
+        //ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
+        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+            ground,
+            BABYLON.PhysicsImpostor.HeightmapImpostor,
+            { mass: 0 },
+            scene
+          );
+    }
+    createWalls(scene,width,height)
+    
+    return ground;
+}
+
+
+
 
 
 function loadSounds(scene) {
@@ -356,33 +507,7 @@ function displayLives(){
     advancedTexture.addControl(liveblock);
 }
 
-function createGround(scene) {
-    let width = 2000;
-    let height = 2000
-    const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:100, onReady: onGroundCreated};
-    //scene is optional and defaults to the current scene
-    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
 
-    function onGroundCreated() {
-        const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture("images/sol/sol19.jpg");
-        groundMaterial.diffuseTexture.uScale = 100;
-        groundMaterial.diffuseTexture.vScale = 100;
-        ground.material = groundMaterial;
-        // to be taken into account by collision detection
-        ground.checkCollisions = true;
-        //groundMaterial.wireframe=true;
-        //ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
-        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
-            ground,
-            BABYLON.PhysicsImpostor.HeightmapImpostor,
-            { mass: 0 },
-            scene
-          );
-    }
-    createWalls(scene,width,height)
-    return ground;
-}
 
 function createSky(scene){
     var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:2000.0}, scene);
@@ -581,20 +706,39 @@ function createSuperBall(scene) {
 
 function updatePosition(){
     let superballMesh = scene.getMeshByName("heroSuperball");
-    console.log(superballMesh.position)
+    //console.log(superballMesh.position);
+    
     let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
     let direction = new BABYLON.Vector3(0, -1, 0);
     let ray = new BABYLON.Ray(origin, direction, 10000);  
 
+
         
     // compute intersection point with the ground
     let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
-    let groundHeight = pickInfo.pickedPoint.y;
-    if(superballMesh.position.y>=groundHeight+4.5){
-        superballMesh.position.y = superballMesh.position.y - 0.5;
+    if(pickInfo.pickedPoint!=null){
+        let groundHeight = pickInfo.pickedPoint.y;
+        if(superballMesh.position.y>=groundHeight+4.5){
+            superballMesh.position.y = superballMesh.position.y - 0.5;
+        }
+    }
+    else{ // if the superball is reaching on of the borders (ie. the walls)
+        if(superballMesh.position.x >= 297){       
+              superballMesh.position.x = superballMesh.position.x - 10;
+        }
+        else if (superballMesh.position.x <= -297){
+            superballMesh.position.x = superballMesh.position.x + 10;
+        }
+        else if (superballMesh.position.z >= 297){
+            superballMesh.position.z = superballMesh.position.z - 10;
+        }
+        else if(superballMesh.position.z <= -297){
+            superballMesh.position.z = superballMesh.position.z + 10;
+        }
     }
     
 }
+
 
 function createBalls(nbBall,scene){
     let spheresMesh = [];
