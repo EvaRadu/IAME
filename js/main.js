@@ -84,6 +84,7 @@ function erase() {
     inputStates = {};
     bool = false;
     isPlaying = false;
+    lifeHearts = 5;
 }
 
 function createButtonLetsPlay() {
