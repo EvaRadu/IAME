@@ -83,6 +83,7 @@ function erase() {
     inputStates = {};
     bool = false;
     isPlaying = false;
+    lifeHearts = 5;
 }
 
 /*function aux(nb, level1, level2, level3) {
