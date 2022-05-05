@@ -1,0 +1,26 @@
+{
+  "name": "iame",
+  "version": "1.0.0",
+  "description": "Le but est d'être la dernière balle restante en un temps limité.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvaRadu/IAME.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EvaRadu/IAME/issues"
+  },
+  "homepage": "https://github.com/EvaRadu/IAME#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}

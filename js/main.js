@@ -331,7 +331,6 @@ function createScene() {
     return scene;
 }
 
-<<<<<<< HEAD
 function createGround(scene, width, height) {
         
     const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:50, onReady: onGroundCreated};    
@@ -370,9 +369,6 @@ function createGround(scene, width, height) {
     return ground;
 }
 
-
-
-=======
 function createTeleportation(scene){
     let doorMaterial1 = new BABYLON.StandardMaterial("doorMaterial1" , scene);
     let doorMaterial2 = new BABYLON.StandardMaterial("doorMaterial2" , scene);
@@ -421,7 +417,7 @@ function detectTeleportation(scene){
     }
 
 }
->>>>>>> d2162ee1a40d37104b5baaf7c2210b8531c5923a
+
 
 
 function loadSounds(scene) {
@@ -585,16 +581,6 @@ function displayLives(){
     liveblock.color = "black";
     advancedTexture.addControl(liveblock);
 }
-
-<<<<<<< HEAD
-=======
-function createGround(scene) {
-    let width = 600;
-    let height = 600;
-    const groundOptions = { width:width, height:height, subdivisions:50, minHeight:0, maxHeight:50, onReady: onGroundCreated};
-    //scene is optional and defaults to the current scene
-    const ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap("gdhm", 'images/hmap2.jpg', groundOptions, scene); 
->>>>>>> d2162ee1a40d37104b5baaf7c2210b8531c5923a
 
 
 function createSky(scene){
