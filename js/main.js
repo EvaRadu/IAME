@@ -47,6 +47,7 @@ function startGame() {
         let deltaTime = engine.getDeltaTime(); 
             if (bool) {
                 if ((isPlaying) && (bool)) {
+                    finalScreen = false;
                     superball.move();
                     superball.jump();
                     //scene.render();
@@ -139,6 +140,7 @@ function reStartButton() {
         textblock.dispose();
         erase();
         scene = createScene();
+        scene.assetsManager.load();
         startButton = createButtonLetsPlay();
         });
     advancedTextureRestart.addControl(buttonReStart);
@@ -648,6 +650,7 @@ function createSuperBall(scene) {
 function updatePosition(){
     let superballMesh = scene.getMeshByName("heroSuperball");
     //console.log(superballMesh.position);
+    
     let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
     let direction = new BABYLON.Vector3(0, -1, 0);
     let ray = new BABYLON.Ray(origin, direction, 10000);  
@@ -656,9 +659,25 @@ function updatePosition(){
         
     // compute intersection point with the ground
     let pickInfo = scene.pickWithRay(ray, (mesh) => { return(mesh.name === "gdhm"); });
-    let groundHeight = pickInfo.pickedPoint.y;
-    if(superballMesh.position.y>=groundHeight+4.5){
-        superballMesh.position.y = superballMesh.position.y - 0.5;
+    if(pickInfo.pickedPoint!=null){
+        let groundHeight = pickInfo.pickedPoint.y;
+        if(superballMesh.position.y>=groundHeight+4.5){
+            superballMesh.position.y = superballMesh.position.y - 0.5;
+        }
+    }
+    else{ // if the superball is reaching on of the borders (ie. the walls)
+        if(superballMesh.position.x >= 297){       
+              superballMesh.position.x = superballMesh.position.x - 10;
+        }
+        else if (superballMesh.position.x <= -297){
+            superballMesh.position.x = superballMesh.position.x + 10;
+        }
+        else if (superballMesh.position.z >= 297){
+            superballMesh.position.z = superballMesh.position.z - 10;
+        }
+        else if(superballMesh.position.z <= -297){
+            superballMesh.position.z = superballMesh.position.z + 10;
+        }
     }
     
 }
