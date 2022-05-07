@@ -60,7 +60,7 @@ function startGame() {
                 }
                 else {
                     if(finalScreen==false){
-                    let textblockWL = WinOrLose();
+                    var textblockWL = WinOrLose();
                     reStartButton = reStartButton();
                     finalScreen = true;
                     }
@@ -155,6 +155,7 @@ function createButtonLetsPlay() {
 
 function WinOrLose() {
     const nb = otherBallsMesh.length;
+    var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
     textblock = new BABYLON.GUI.TextBlock();           
     if (remainingBalls <= balls/2) {
         textblock.text = "Congrats : you win !";
@@ -169,12 +170,14 @@ function WinOrLose() {
     textblock.top = (screenHeight * 200)/720;
     textblock.left = (screenWidth * 200)/1280;
     textblock.color = "black";
-    advancedTexture.addControl(textblock);
+    advancedTextureGameOver.addControl(textblock);
     return textblock;
 }
 
 function reStartButton() {
 
+
+    var advancedTextureRestart = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("RestartUI");
 
     var buttonReStart = BABYLON.GUI.Button.CreateSimpleButton("but2", "Another Round ?");
     buttonReStart.width = "150px"
@@ -184,13 +187,13 @@ function reStartButton() {
     buttonReStart.background = "purple";
     buttonReStart.onPointerUpObservable.add(function() { 
         buttonReStart.dispose();
-        //textblock.dispose();
+        textblock.dispose();
         erase();
         scene = createScene();
         scene.assetsManager.load();
         startButton = createButtonLetsPlay();
         });
-    advancedTexture.addControl(buttonReStart);
+    advancedTextureRestart.addControl(buttonReStart);
     return reStartButton;
 
 }
