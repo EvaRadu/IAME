@@ -92,6 +92,21 @@ function erase() {
 }
 
 function createButtonLetsPlay() {
+
+    
+    var button0 = BABYLON.GUI.Button.CreateSimpleButton("but0", "LET'S PLAY !");
+    button0.width = "150px"
+    button0.height = "40px";
+    button0.color = "white";
+    button0.cornerRadius = 20;
+    button0.background = "pink";
+    button0.onPointerUpObservable.add(function() {
+        button0.dispose();
+        bool = true;
+        createTimer(90); 
+    });
+    advancedTexture.addControl(button0);
+
     var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "level 1");
     button1.width = "150px"
     button1.height = "40px";
@@ -104,8 +119,6 @@ function createButtonLetsPlay() {
         button1.dispose();
         button2.dispose();
         button3.dispose();
-        bool = true;
-        createTimer(90); 
     });
     advancedTexture.addControl(button1);
 
@@ -121,8 +134,6 @@ function createButtonLetsPlay() {
         button1.dispose();
         button2.dispose();
         button3.dispose();        
-        bool = true;
-        createTimer(90); 
         const gd = scene.getMeshByName("gdhm");
         gd.material.diffuseTexture = new BABYLON.Texture("images/sol/sol10.jpg");
         gd.material.diffuseTexture.uScale = 100;
@@ -142,8 +153,6 @@ function createButtonLetsPlay() {
         button1.dispose();
         button2.dispose();
         button3.dispose();       
-        bool = true;
-        createTimer(90); 
         const gd = scene.getMeshByName("gdhm");
         gd.material.diffuseTexture = new BABYLON.Texture("images/sol/sol9.jpg");
         gd.material.diffuseTexture.uScale = 100;
