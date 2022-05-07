@@ -1,5 +1,7 @@
 # IAME 
 
+Lien jeu : https://iamegame.herokuapp.com/
+
 Le but est d'être la dernière balle restante en un temps limité. 
 
 Pour ce faire, essayez de rentrer dans un maximum de balles colorées dans le temps imparti. 
