@@ -1,4 +1,5 @@
 # IAME 
+## Membres du groupe : Mia Swery, Eva Radu
 
 Lien jeu : https://iamegame.herokuapp.com/
 
