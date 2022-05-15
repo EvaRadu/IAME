@@ -1,4 +1,6 @@
-
+/**
+ * Class for the square enemy
+ */
 export default class FollowEnemy {
         constructor(enemyMesh, id, speed, scaling, scene) {
             this.enemyMesh = enemyMesh;
@@ -27,21 +29,15 @@ export default class FollowEnemy {
             else
                 this.speed = 1;
     
-            // in case, attach the instance to the mesh itself, in case we need to retrieve
-            // it after a scene.getMeshByName that would return the Mesh
-            // SEE IN RENDER LOOP !
             enemyMesh.FollowEnemy = this;
     
-            // scaling
-            //this.enemyMesh.scaling = new BABYLON.Vector3(0.2  , 0.2, 0.2);
-    
-            // FOR COLLISIONS, let's associate a BoundingBox to the FollowEnemy
-    
-            // singleton, static property, computed only for the first FollowEnemy we constructed
-            // for others, we will reuse this property.
            
         }
     
+        /**
+         * To allow the square to get closer to the superball
+         * 
+         */
         move(scene) {
             // as move can be called even before the bbox is ready.
     

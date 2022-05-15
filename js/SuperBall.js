@@ -1,21 +1,22 @@
 import Sphere from "./Sphere.js";
 
+/**
+ *  Class for the superball (player)
+ */
 export default class sphereMesh extends Sphere {
     constructor(sphereMesh, id, scaling, scene, texture){
         super(sphereMesh,id,scaling,scene,texture);
         sphereMesh.position.x = 0;
-        //sphereMesh.position.y = 5;     
         sphereMesh.position.z = 0;
-        sphereMesh.speed = 4;
         sphereMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
-        
-        /*sphereMesh.onCollideObservable.add(function () {
-            alert("collideObservable work!");
-        });*/
+
 
     }
 
-    updateParticles(){
+    /**
+     *  Updates the postion of the particles of the superball
+     */
+    updateParticles(){ 
             // Create a particle system
             var particleSystem = new BABYLON.ParticleSystem("particles", 2000, this.scene);
     

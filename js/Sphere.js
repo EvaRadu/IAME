@@ -1,3 +1,6 @@
+/**
+ * Class to create a sphere
+ */
 export default class Sphere {
     constructor(sphereMesh, id, scaling, scene, texture) {
         this.sphereMesh = sphereMesh;
@@ -6,9 +9,6 @@ export default class Sphere {
         this.scaling = scaling;
 
         let sphereMaterial = new BABYLON.StandardMaterial("sphereMaterial" , scene);
-        
-        //var sphereMaterial = new BABYLON.PBRMaterial("sphereMaterial", this.scene);
-        //sphereMaterial.subSurface.isRefractionEnabled = true;
 
         sphereMaterial.glossiness = 3;
         sphereMaterial.metallic = 5;
@@ -20,7 +20,6 @@ export default class Sphere {
             sphereMaterial.diffuseTexture = new BABYLON.Texture(texture, this.scene); 
         }
         
-        //sphereMaterial.diffuseTexture.level = 2;
 
         sphereMaterial.alpha = Math.random()*(1-0.7+1)+0.7; // niveau de transparence
         
@@ -33,13 +32,11 @@ export default class Sphere {
                     
         sphereMesh.Sphere = this;
 
-        //this.sphereMesh.scaling = new BABYLON.Vector3(0.2  , 0.2, 0.2);
         sphereMesh.position.x = Math.floor(Math.random()*(300-(-300)+1)+(-300));
         sphereMesh.position.z = Math.floor(Math.random()*(300-(-300)+1)+(-300));
         sphereMesh.position.y = 50;
 
         sphereMesh.checkCollisions = true;
-        //sphereMesh.showBoundingBox = true;
 
       
     }

@@ -4,6 +4,9 @@ import FollowEnemy from "./FollowEnemy.js";
 import FinalBoss from "./FinalBoss.js";
 
 let spheresMesh;
+let helpButton;
+let storyButton;
+let button4;
 let canvas;
 let engine;
 let scene;
@@ -11,16 +14,14 @@ let superball;
 let ground;
 let otherBallsMesh;
 let villainBallsMesh;
-let remainingBalls = 20;
+let nbBallsInitial = 50;
+let remainingBalls = nbBallsInitial;
 let balls = remainingBalls;
 let touchedBalls = 0;
 let inputStates = {};
 let bool = false;
 var textblock;
 let isPlaying = true;
-let startButton;
-let restartButton;
-let boolOnRestartButton = false;
 let lifeHearts = 5;
 let liveblock = new BABYLON.GUI.TextBlock();
 let screenWidth = window.screen.width;
@@ -33,10 +34,19 @@ let enemy = null;
 let bonus1;
 let bonus2;
 let bonus3; 
+let healthPercentage;
+let counterBoss;
+var textblockHealth;
+var bossTouched = false;
+let time = 90;
 
 
 window.onload = startGame();
 
+/** 
+ * Function to start the whole game
+ * 
+ * **/
 function startGame() {
     canvas = document.querySelector("#myCanvas");
     engine = new BABYLON.Engine(canvas, true);
@@ -47,11 +57,10 @@ function startGame() {
     modifySettings();
 
     superball = scene.getMeshByName("heroSuperball");
-    startButton = createButtonLetsPlay();
+    START();
     let finalScreen = false;
 
     engine.runRenderLoop(() => {
-        //console.log(scene.isReady());
  
         let deltaTime = engine.getDeltaTime(); 
             if (bool) {
@@ -62,10 +71,7 @@ function startGame() {
                     if(level==3){
                     superball.fireCannonBalls();
                     }
-                    /*
-                    setTimeout(() => {
-                        moveBalls();
-                    }, 5000 );*/
+
                     let enemyBox = scene.getMeshByName("enemyBox");
                     if (level == 2) {
                         if ((superball.position.subtract(enemyBox.position)).length() < 50){ 
@@ -83,10 +89,7 @@ function startGame() {
                     reStartButton = reStartButton();
                     finalScreen = true;
                     }
-                    //scene = createScene(); 
-                    //startButton = createButtonLetsPlay();
-     
-                    //scene.render();
+
                 }
             }
             scene.render();
@@ -97,22 +100,28 @@ function startGame() {
     
 }
 
+
+/**
+ * Allows us to apply random impulses to our balls  
+ * **/
 function moveBalls() {
 
-    for (let i = 0; i < villainBallsMesh.length; i++) {
+    if(level!=3){
+
+    for (let i = 0; i < villainBallsMesh.length; i++) { // Enemy balls
         let villain =  villainBallsMesh[i];
 
         let imposter = villain.physicsImpostor;
 
-        if(rand()){
-            if(rand()){
+        if(rand()){ // forward or backward 
+            if(rand()){ 
                 imposter.applyImpulse(new BABYLON.Vector3(0.1, 0 , 0),villain.getAbsolutePosition()); 
             }
             else{
                 imposter.applyImpulse(new BABYLON.Vector3(-0.1, 0 , 0),villain.getAbsolutePosition()); 
             }
         }
-        else{
+        else{ // left or right 
             if(rand()){
                 imposter.applyImpulse(new BABYLON.Vector3(0, 0 ,  0.1),villain.getAbsolutePosition()); 
             }
@@ -122,12 +131,12 @@ function moveBalls() {
         }
     }
 
-    for (let i = 0; i < otherBallsMesh.length; i++) {
+    for (let i = 0; i < otherBallsMesh.length; i++) { // Colored balls
         let ball =  otherBallsMesh[i];
 
         let imposter = ball.physicsImpostor;
 
-        if(rand()){
+        if(rand()){ // forward or backward 
             if(rand()){
                 imposter.applyImpulse(new BABYLON.Vector3(0.1, 0 , 0),ball.getAbsolutePosition()); 
             }
@@ -135,7 +144,7 @@ function moveBalls() {
                 imposter.applyImpulse(new BABYLON.Vector3(-0.1, 0 , 0),ball.getAbsolutePosition()); 
             }
         }
-        else{
+        else{ // left or right 
             if(rand()){
                 imposter.applyImpulse(new BABYLON.Vector3(0, 0 ,  0.1),ball.getAbsolutePosition()); 
             }
@@ -144,13 +153,46 @@ function moveBalls() {
             }
         }
     }
+  }
+    else{ // LEVEL 3  ==> Random impulses for the final boss
+
+        let boss = scene.getMeshByName("finalBoss");
+        let imposter = boss.physicsImpostor;
+        console.log("here");
+        if(rand()){ // forward or backward 
+            if(rand()){
+                imposter.applyImpulse(new BABYLON.Vector3(60, 0 , 0),boss.getAbsolutePosition()); 
+            }
+            else{
+                imposter.applyImpulse(new BABYLON.Vector3(-60, 0 , 0),boss.getAbsolutePosition()); 
+            }
+        }
+        else{ // left or right 
+            if(rand()){
+                imposter.applyImpulse(new BABYLON.Vector3(0, 0 ,  60),boss.getAbsolutePosition()); 
+            }
+            else{
+                imposter.applyImpulse(new BABYLON.Vector3(0, 0 ,  -60),boss.getAbsolutePosition()); 
+            }
+        }
+
+    }
 }
 
+/**
+ *  Picks a random number between 0 and 1 and tells us if it's >=0.5 or not 
+ * 
+ **/
 function rand(){
     var r = Math.random();
     return r>=0.5;
 }
 
+
+/**
+ *  Resets the parameters when the player wants to play a new game
+ *  
+ **/
 function erase() {
     scene.dispose();
     superball.dispose();
@@ -164,9 +206,12 @@ function erase() {
     lifeHearts = 5;
 }
 
-function createButtonLetsPlay() {
 
-    
+/**
+ *  Creates the button that allows the player to play
+ * 
+ */
+function createLetsPlayButton() {
     var button0 = BABYLON.GUI.Button.CreateSimpleButton("but0", "LET'S PLAY !");
     button0.width = "150px"
     button0.height = "40px";
@@ -175,11 +220,239 @@ function createButtonLetsPlay() {
     button0.background = "pink";
     button0.onPointerUpObservable.add(function() {
         button0.dispose();
+        helpButton.dispose();
+        storyButton.dispose();
         bool = true;
-        createTimer(90); 
+        createTimer(time); 
     });
     advancedTexture.addControl(button0);
+ }
 
+
+/**
+ *  Function to get an input for the number of balls
+ * 
+ */
+ 
+ function createinputRemainingBallsButton() {
+    
+    /*INPUT*/ 
+    var inputNumber = new BABYLON.GUI.InputText("inputNumber");
+
+    inputNumber.width = "150px"
+    inputNumber.height = "40px";
+    inputNumber.left = "0px";
+
+    inputNumber.text = "Number of balls to save";
+    inputNumber.color = "#0095B3";
+    inputNumber.background = "white";
+    inputNumber.onTextChangedObservable.add((input) => {
+        let x = parseInt(input._textWrapper._text.toString(),10);
+        if ((!isNaN(x)) && (x>0) && (x<nbBallsInitial)) {
+        remainingBalls = x;
+        textblock.text = "Remaining balls : " + remainingBalls;
+        }
+            
+    });
+    advancedTexture.addControl(inputNumber);
+    return inputNumber;
+
+ }
+
+ /**
+ *  Function to get an input for the time counter
+ * 
+ */
+ 
+ function createinputTimeButton() {
+    
+    var inputNumber = new BABYLON.GUI.InputText("inputTime");
+
+    inputNumber.width = "150px"
+    inputNumber.height = "40px";
+    inputNumber.left = "200px";
+
+
+    inputNumber.text = "Set Timer in sec";
+    inputNumber.color = "#0095B3";
+    inputNumber.background = "white";
+    inputNumber.onTextChangedObservable.add((input) => {
+           let x = parseInt(input._textWrapper._text);
+           if ((!isNaN(x)) && (x>0)) {
+            time = x
+            console.log(time);
+            }
+    });
+    advancedTexture.addControl(inputNumber);
+    return inputNumber;
+ }
+
+
+
+ /**
+  * Creates the button that allows the player to choose a level
+  *  
+  */
+ function startButtonCreate() {
+    var buttonStart = BABYLON.GUI.Button.CreateSimpleButton("startButton", "CHOOSE LEVEL");
+    buttonStart.width = "150px"
+    buttonStart.height = "40px";
+    buttonStart.left = "0px";
+    buttonStart.color = "white";
+    buttonStart.cornerRadius = 20;
+    buttonStart.background = "pink";
+    buttonStart.onPointerUpObservable.add(function() {
+        buttonStart.dispose();
+        button4.dispose();
+        createButtonLetsPlay()    
+    });
+    advancedTexture.addControl(buttonStart);
+    return buttonStart;
+ }
+
+
+/**
+ * Creates the help button
+ * 
+ */
+function help() {
+
+    var buttonHelp = BABYLON.GUI.Button.CreateSimpleButton("helpButton", "?");
+    buttonHelp.width = "40px"
+    buttonHelp.height = "40px";
+    buttonHelp.left = "-400px";
+    buttonHelp.color = "white";
+    buttonHelp.cornerRadius = 20;
+    buttonHelp.background = "green";
+    buttonHelp.onPointerUpObservable.add(function() {
+
+        let advancedTextureHelp = textHelp();
+        advancedTextureHelp.onPointerDownObservable.add(function() {
+            advancedTextureHelp.dispose();
+            console.log("here");
+        })
+           
+    });
+    advancedTexture.addControl(buttonHelp);
+    return buttonHelp;
+ }
+
+
+ /**
+  *  Creates the text of the help button
+  * 
+  */
+function textHelp() {
+    var advancedTextureHelp = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Help");
+    var textblockHelp = new BABYLON.GUI.TextBlock();   
+    textblockHelp.text = 
+    "KEYS :\n➡️ : moves the player to the right \n⬅️ : moves the player to the left \n⬇️ : moves the player backwards \n⬆️ : moves the player forward \n" +
+    "space : makes the player jump\n enter : makes the player shoot balls (only in level 3)" 
+    textblockHelp.fontSize = 22;
+    textblockHelp.top = 230 ;
+    textblockHelp.left = 0;
+    textblockHelp.color = "black";
+    advancedTextureHelp.addControl(textblockHelp);
+    return textblockHelp;
+}
+
+/**
+ *  Creates the button for the story time
+ *  
+ */
+function story() {
+
+    var buttonStory = BABYLON.GUI.Button.CreateSimpleButton("StoryButton", "STORYTIME");
+    buttonStory.width = "150px"
+    buttonStory.height = "40px";
+    buttonStory.left = "0px";
+    buttonStory.top = "-200px";
+
+    buttonStory.color = "white";
+    buttonStory.cornerRadius = 20;
+    buttonStory.background = "orange";
+    buttonStory.onPointerUpObservable.add(function() {
+
+        let advancedTextureStory = textStory();
+        advancedTextureStory.onPointerDownObservable.add(function() {
+            advancedTextureStory.dispose();
+        })
+    });
+    advancedTexture.addControl(buttonStory);
+    return buttonStory;
+ }
+
+
+ /**
+  *  Creates the text for the storytime button
+  *  
+  */
+function textStory() {
+    var advancedTextureStory = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Story");
+    var textblockStory = new BABYLON.GUI.TextBlock();   
+    textblockStory.text = "You live in the magnificent realm of Balland.\nSince childhood, you've always been laughed by the other ballizens !\nFor you are a very special being.\nContrary to your peers, you were born different. Unique.\nFor an unknown reason, some strange particles are emitted by your body and have been given you special abilities.\nYou used to be ashamed of your difference. But that was before. Before Megaball invaded CityBall!\n Thanks to your special abilities, try to save the kidnapped ballizens and defeat the awful Megaball !\n Hurry ! Everyone's counting on you Superball !" 
+    textblockStory.fontSize = 17;
+    textblockStory.top = 230 ;
+    textblockStory.left = 0;
+    textblockStory.color = "black";
+    advancedTextureStory.addControl(textblockStory);
+    return textblockStory;
+}
+
+
+
+
+/**
+ *  Creates the different buttons
+ */
+function START() {
+    let start = startButtonCreate();
+    helpButton = help();
+    storyButton = story();
+
+
+    button4 = BABYLON.GUI.Button.CreateSimpleButton("but4", "SETTINGS");
+    button4.width = "150px"
+    button4.height = "40px";
+    button4.left = "400px";
+    button4.color = "white";
+    button4.cornerRadius = 22;
+    button4.background = "red";
+    button4.onPointerUpObservable.add(function() 
+    { 
+        start.dispose()
+        let inputButton1 = createinputRemainingBallsButton();
+        let inputButton2 = createinputTimeButton();
+
+        button4.dispose();
+
+        var buttonConfirm = BABYLON.GUI.Button.CreateSimpleButton("confirmButton", "confirm");
+        buttonConfirm.width = "150px"
+        buttonConfirm.height = "40px";
+        buttonConfirm.left = "400px";
+        buttonConfirm.color = "white";
+        buttonConfirm.cornerRadius = 20;
+        buttonConfirm.background = "red";
+        buttonConfirm.onPointerUpObservable.add(function() 
+        { 
+            inputButton1.dispose();
+            inputButton2.dispose();
+            buttonConfirm.dispose();
+            startButtonCreate();
+        });     
+        advancedTexture.addControl(buttonConfirm);
+    });
+    advancedTexture.addControl(button4);
+}
+
+
+/**
+ *  Creates the 3 buttons for the 3 different levels
+ *  
+ */
+function createButtonLetsPlay() {
+
+    // LEVEL 1 
     var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "level 1");
     button1.width = "150px"
     button1.height = "40px";
@@ -193,10 +466,12 @@ function createButtonLetsPlay() {
         button2.dispose();
         button3.dispose();
         bonus2.dispose();
-        bonus3.dispose();
+        bonus3.dispose();     
+        createLetsPlayButton();
     });
     advancedTexture.addControl(button1);
 
+    // LEVEL 2
     var button2 = BABYLON.GUI.Button.CreateSimpleButton("but2", "level 2");
     button2.width = "150px"
     button2.height = "40px";
@@ -214,14 +489,19 @@ function createButtonLetsPlay() {
         bonus1.position.y = 4;
         bonus3.dispose();        
         ground.dispose();
-        ground = createGround( 'images/hmap1.png', "images/sol/sol10.jpg", 50, scene);
+        ground = createGround( 'images/hmap1.png', "images/sol/sol2.jpg", 50, scene);
         door1.position.y = 13;
         door2.position.y = 13;
         enemy = new FollowEnemy(BABYLON.MeshBuilder.CreateBox("enemyBox", {height: 5, width:5, depth: 5}, scene),1,1,1,scene);
+    
+        createLetsPlayButton();
+
     });
     advancedTexture.addControl(button2);
 
-    var button3 = BABYLON.GUI.Button.CreateSimpleButton("but3", "level 3");
+
+   // LEVEL 3
+   var button3 = BABYLON.GUI.Button.CreateSimpleButton("but3", "level 3");
     button3.width = "150px"
     button3.height = "40px";
     button3.left = "200px";
@@ -233,6 +513,7 @@ function createButtonLetsPlay() {
         button1.dispose();
         button2.dispose();
         button3.dispose(); 
+        textblock.dispose();
         bonus1.position.x = Math.floor(Math.random()*(180-(-180)+1)+(-180));
         bonus1.position.z = Math.floor(Math.random()*(180-(-180)+1)+(-180));
         bonus1.position.y = 4;      
@@ -244,23 +525,44 @@ function createButtonLetsPlay() {
             let villain =  villainBallsMesh[i];
             villain.dispose();
         }
-        //ground = createGround( 'images/hmap1.png', "images/sol/sol9.jpg", 10,  scene);
-        ground = createGround( 'images/hmap1.png', "images/sol/sol10.jpg", 50, scene);
+        ground = createGround( 'images/hmap1.png', "images/sol/sol3.jpeg", 50, scene);
         let finalBoss = BABYLON.MeshBuilder.CreateSphere("finalBoss", {diameter: 50, segments: 64}, scene);
         let finalBossMesh = new FinalBoss(finalBoss,100,10,scene, "images/spheres/snow.jpg");
-        
+        healthPercentage = 100;
+        counterBoss = 0;
         door1.position.y = 13;
         door2.position.y = 13;
+
+        var advancedTextureHealth = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("Health");
+        textblockHealth = new BABYLON.GUI.TextBlock();   
+        textblockHealth.text = "■■■■■■■■■■ 100 % "
+        textblockHealth.fontSize = 37;
+        textblockHealth.top = (screenHeight * 250)/720;
+        textblockHealth.left = 0;
+        textblockHealth.color = "green";
+        advancedTextureHealth.addControl(textblockHealth);
+
+        createLetsPlayButton();
+
+
     });
     advancedTexture.addControl(button3);
+
+
+
     return button1;
 }
 
+
+/**
+ *  Allows us to know if the player wins or loses 
+ * 
+ **/
 function WinOrLose() {
     const nb = otherBallsMesh.length;
     var advancedTextureGameOver = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("GAME OVER");
     textblock = new BABYLON.GUI.TextBlock();           
-    if (remainingBalls <= balls/2) {
+    if (remainingBalls == 0) {
         textblock.text = "Congrats : you win !";
         scene.assets.winGame.setVolume(0.6);
         scene.assets.winGame.play();
@@ -277,6 +579,10 @@ function WinOrLose() {
     return textblock;
 }
 
+/**
+ *  Creates the button that allow the player to player a new game
+ * 
+ **/
 function reStartButton() {
 
 
@@ -301,7 +607,11 @@ function reStartButton() {
 
 }
 
-function createTimer(i) { // i seconds
+/**
+ *  Allows us to create a timer of i seconds
+ * 
+ **/
+function createTimer(i) { 
     // GUI
 
     var textBlock = new BABYLON.GUI.TextBlock("text", "Remaining time : " + new String(i) + " seconds");
@@ -323,39 +633,36 @@ function createTimer(i) { // i seconds
                 textBlock.dispose();
                 advancedTexture.dispose();
             }
-            if(i%5==0){
-                if(level!=3){
+            if((i%5==0)&&(level!=3)){
                 moveBalls();
-                }
+            }
+            if((i%3==0)&&(level==3)){
+                moveBalls();
             }
         }
     }, 1000)
     return timer;
 }
 
+/**
+ *  Creates our scene and the objects linked to the scene
+ * 
+ **/
 function createScene() {
     console.log("create scene")
     scene = new BABYLON.Scene(engine);
-
 
     superball = createSuperBall(scene); 
 
     advancedTexture = new BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-    scene.enablePhysics();
-        
+    scene.enablePhysics();   
    
     scene.assetsManager = configureAssetManager(scene);
 
 
     let followCamera = createFollowCamera(scene, superball);
     scene.activeCamera = followCamera; 
-
-   
-
-
-    //music = new BABYLON.Sound("backgroundMusic", "sounds/sound1.mp3", scene, null, { loop: true, autoplay: true });
-
 
     displayLives();
     
@@ -367,9 +674,8 @@ function createScene() {
 
     createLights(scene);
     createSky(scene);
-    ground = createGround( 'images/hmap2.jpg',"images/sol/sol19.jpg", 50,  scene);
+    ground = createGround( 'images/hmap2.jpg',"images/sol/sol1.jpg", 50,  scene);
 
-    //superball.physicsImpostor = new BABYLON.PhysicsImpostor(superball, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 1,move:true,friction:0.8, restitution: 0.2 }, scene);
     scene.ambientColor = new BABYLON.Color3(0.3, 0.3, 0.3);  
     
     loadSounds(scene);
@@ -384,6 +690,13 @@ function createScene() {
     return scene;
 }
 
+
+/**
+ *  Creates 3 bonus :
+ *     Level 1 : 1 bonus available
+ *     Level 2 : 2 bonus available
+ *     Level 3 : 3 bonus available
+ */
 function createHeartBonus(scene){
     bonus1 = new BABYLON.MeshBuilder.CreateCapsule("bonus1", {radius:0.5, height:10, radiusTop:4});
     bonus2 = new BABYLON.MeshBuilder.CreateCapsule("bonus1", {radius:0.5, height:10, radiusTop:4});
@@ -412,8 +725,17 @@ function createHeartBonus(scene){
 	hl.addMesh(bonus2, BABYLON.Color3.Red());
     hl.addMesh(bonus3, BABYLON.Color3.Red());
 
+    bonus1.touched = false;
+    bonus2.touched = false;
+    bonus3.touched = false;
+
 }
 
+
+/**
+ *  Creates the 2 doors of teleportation
+ * 
+ */
 function createTeleportation(scene){
     let doorMaterial1 = new BABYLON.StandardMaterial("doorMaterial1" , scene);
     let doorMaterial2 = new BABYLON.StandardMaterial("doorMaterial2" , scene);
@@ -445,6 +767,11 @@ function createTeleportation(scene){
 
 }
 
+/**
+ *  Allows us to know if the player is in collision with one of the teleportation door
+ *  And to teleportate the player 
+ * 
+ */
 function detectTeleportation(scene){
     let player = scene.getMeshByName("heroSuperball");
 
@@ -464,9 +791,15 @@ function detectTeleportation(scene){
 }
 
 
+/**
+ *  Function to load all the sounds
+ * 
+ */
 function loadSounds(scene) {
+
     var assetsManager = scene.assetsManager;
-    let binaryTask = assetsManager.addBinaryFileTask(
+
+    let binaryTask = assetsManager.addBinaryFileTask(  // when the superball "eat" a colored ball
       "eatBall",
       "sounds/eatBall.wav"
     );
@@ -484,7 +817,7 @@ function loadSounds(scene) {
       );
     };
 
-    binaryTask = assetsManager.addBinaryFileTask(
+    binaryTask = assetsManager.addBinaryFileTask( // when the player uses the teleportation doors
         "teleportation",
         "sounds/teleportation.wav"
       );
@@ -502,9 +835,82 @@ function loadSounds(scene) {
         );
       };
 
+    binaryTask = assetsManager.addBinaryFileTask( // when the player uses a bonus
+        "bonus",
+        "sounds/bonus.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.bonus = new BABYLON.Sound(
+          "bonus",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              spatialSound: true,
+              autoplay: false
+          }
+        );
+      };
+
+    binaryTask = assetsManager.addBinaryFileTask( // when the player is in collision with the square enemy
+        "enemy2",
+        "sounds/enemy2.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.enemy2 = new BABYLON.Sound(
+          "enemy2",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              spatialSound: true,
+              autoplay: false
+          }
+        );
+      };
+
+    
+      binaryTask = assetsManager.addBinaryFileTask( // when the player is in collision with the final boss
+        "finalboss",
+        "sounds/finalboss.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.finalboss = new BABYLON.Sound(
+          "finalboss",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              spatialSound: true,
+              autoplay: false
+          }
+        );
+      };
+
+      binaryTask = assetsManager.addBinaryFileTask( // when a canonball touch the final boss
+        "canon",
+        "sounds/canon.wav"
+      );
+      binaryTask.onSuccess = function (task) {
+        scene.assets.canon = new BABYLON.Sound(
+          "canon",
+          task.data,
+          scene,
+          null,
+          {
+              loop: false,
+              spatialSound: true,
+              autoplay: false
+          }
+        );
+      };
 
 
-    binaryTask = assetsManager.addBinaryFileTask(
+
+    binaryTask = assetsManager.addBinaryFileTask( // when the ball touches a "basic" enemy 
         "enemy",
         "sounds/enemy.wav"
       );
@@ -522,7 +928,7 @@ function loadSounds(scene) {
         );
       };
 
-    binaryTask = assetsManager.addBinaryFileTask(
+    binaryTask = assetsManager.addBinaryFileTask( // if the player wins
         "winGame",
         "sounds/winGame.wav"
       );
@@ -539,7 +945,7 @@ function loadSounds(scene) {
         );
       };
 
-      binaryTask = assetsManager.addBinaryFileTask(
+      binaryTask = assetsManager.addBinaryFileTask( // if the player loses
         "loseGame",
         "sounds/loseGame.wav"
       );
@@ -556,7 +962,7 @@ function loadSounds(scene) {
         );
       };
 
-    binaryTask = assetsManager.addBinaryFileTask(
+    binaryTask = assetsManager.addBinaryFileTask( // global music 
         "permanentMusic",
         "sounds/sound1.mp3"
       );
@@ -613,6 +1019,10 @@ function configureAssetManager(scene) {
   }
 
 
+/**
+ *  Allows us to display the lives of the player
+ * 
+ **/
 function displayLives(){
     let string = "❤❤❤❤❤";
     liveblock.text = string.substring(0,lifeHearts);
@@ -623,6 +1033,11 @@ function displayLives(){
     advancedTexture.addControl(liveblock);
 }
 
+
+/**
+ *  Allows us to create the ground
+ *
+ */
 function createGround(hmap, sol,maxH, scene) {
     console.log("create ground");
     let width = 600;
@@ -639,8 +1054,6 @@ function createGround(hmap, sol,maxH, scene) {
         ground.material = groundMaterial;
         // to be taken into account by collision detection
         ground.checkCollisions = true;
-        //groundMaterial.wireframe=true;
-        //ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.9 }, scene);
         ground.physicsImpostor = new BABYLON.PhysicsImpostor(
             ground,
             BABYLON.PhysicsImpostor.HeightmapImpostor,
@@ -652,6 +1065,11 @@ function createGround(hmap, sol,maxH, scene) {
     return ground;
 }
 
+
+/**
+ *  Creates the sky box 
+ *
+ */
 function createSky(scene){
     console.log("create sky");
     var skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:2000.0}, scene);
@@ -664,25 +1082,28 @@ function createSky(scene){
 
 	skybox.material = skyboxMaterial;	
     skybox.infiniteDistance = true;
-    //skyboxMaterial.disableLighting = true;
 
     return skybox;
 }
 
+
+/**
+ *  Creates the light
+ * 
+ */
 function createLights(scene) {
     console.log("create light");
-    // i.e sun light with all light rays parallels, the vector is the direction.
-    //let light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
     let light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
     light.intensity = 0.85;
 
-    /*light1.diffuse = new BABYLON.Color3(1, 0, 0);
-	light1.specular = new BABYLON.Color3(0,1,0);
-	light1.groundColor = new BABYLON.Color3(0,0,1);*/
 }
 
 
-
+/**
+ *  Creates the camera 
+ *    target = the player (superball)
+ * 
+ */
 function createFollowCamera(scene, target) {
     console.log("create camera");
     let camera = new BABYLON.FollowCamera("superballFollowCamera", new BABYLON.Vector3(0,50,0), scene, target);
@@ -696,6 +1117,11 @@ function createFollowCamera(scene, target) {
     return camera;
 }
 
+
+/**
+ * Creates invisible walls so that the player cannot go out from the scene 
+ *
+ */
 function createWalls(scene, size1, size2) {
     console.log("create walls");
     var faceColors = new Array(6);
@@ -751,18 +1177,19 @@ function createWalls(scene, size1, size2) {
     const boxImpostor4 = new BABYLON.PhysicsImpostor( box4, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0}, scene);
 }
 
+/**
+ *  Creates our superball (the player)
+ */
 let zMovement = 5;
 function createSuperBall(scene) {
     console.log("create superball");
     let superballMesh = new BABYLON.MeshBuilder.CreateSphere("heroSuperball", {diameter: 7, segments: 64}, scene);
     let superball = new SuperBall(superballMesh,1,0.2,scene, null);
 
-    superballMesh.speed = 1;
+    superballMesh.speed = 2;
     superballMesh.frontVector = new BABYLON.Vector3(0, 0, 1);
 
     superballMesh.move = () => {
-        //console.log(superballMesh.position.x, superballMesh.position.y, superballMesh.position.z );
-
         if(inputStates.up) {
             superballMesh.moveWithCollisions(superballMesh.frontVector.multiplyByFloats(superballMesh.speed, superballMesh.speed, superballMesh.speed));
             detectCollision(scene);
@@ -782,7 +1209,6 @@ function createSuperBall(scene) {
             detectCollision(scene);
         }
 
-        //superballMesh.position = new BABYLON.Vector3(boxMesh.position.x, boxMesh.position.y, boxMesh.position.z);
         superball.updateParticles();
         detectTeleportation(scene);
 
@@ -795,7 +1221,7 @@ function createSuperBall(scene) {
     superballMesh.jumpAfter = 0.1; // in seconds
 
 
-    superballMesh.jump = function(){
+    superballMesh.jump = function(){ 
 
         if(!inputStates.space) {
             updatePosition()
@@ -811,7 +1237,6 @@ function createSuperBall(scene) {
         else{
            
 
-        //superballMesh.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 17, 1), superballMesh.getAbsolutePosition());
         let origin = new BABYLON.Vector3(superballMesh.position.x, 1000, superballMesh.position.z);
         let direction = new BABYLON.Vector3(0, -1, 0);
         let ray = new BABYLON.Ray(origin, direction, 10000);  
@@ -865,7 +1290,7 @@ function createSuperBall(scene) {
 
 
     superballMesh.canFireCannonBalls = true;
-    superballMesh.fireCannonBallsAfter = 0.1; // in seconds
+    superballMesh.fireCannonBallsAfter = 0.2; // in seconds
 
     superballMesh.fireCannonBalls = () => {
         if(!inputStates.enter) return;
@@ -924,15 +1349,40 @@ function createSuperBall(scene) {
         cannonball.actionManager = new BABYLON.ActionManager(scene);
         let boss = scene.getMeshByName("finalBoss");
 
+
+
         cannonball.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
             {trigger : BABYLON.ActionManager.OnIntersectionEnterTrigger,
             parameter : boss}, 
                                             
             () => {
-                //console.log("here");
                 cannonball.dispose(); 
-                boss.scaling = new BABYLON.Vector3(boss.scaling.x-0.02,boss.scaling.y-0.02,boss.scaling.z-0.02);
-
+                scene.assets.canon.setPosition(superballMesh.position);
+                scene.assets.canon.setVolume(2);
+                scene.assets.canon.play();
+                //console.log("here");
+                counterBoss++; 
+                if(counterBoss%10==0){ // update of the health bar
+                    healthPercentage = healthPercentage - 10;
+                    let string = "■■■■■■■■■■";
+                    textblockHealth.text = string.substring(0,healthPercentage/10) + " " + healthPercentage + "%";
+                    if(healthPercentage<=70 && healthPercentage>=40){
+                        textblockHealth.color = "orange";
+                    }
+                    if(healthPercentage<40){
+                        textblockHealth.color = "red";
+                    }
+                }
+               
+                if(healthPercentage==0){ // the player wins
+                    boss.material = cannonball.material;
+                    remainingBalls = 0;
+                    textblockHealth.dispose();
+                }
+                else{
+                    boss.material = cannonball.material;
+                    boss.material.diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", scene); 
+                }
             }
         ));
 
@@ -942,6 +1392,11 @@ function createSuperBall(scene) {
     return superballMesh;
 }
 
+
+/**
+ *  Updates the position of the superball so that it always follow the ground
+ * 
+ */
 function updatePosition(){
     let superballMesh = scene.getMeshByName("heroSuperball");
     //console.log(superballMesh.position);
@@ -977,6 +1432,11 @@ function updatePosition(){
     
 }
 
+
+/**
+ * Creates the colored balls 
+ *
+ */
 function createBalls(nbBall,scene){
     spheresMesh = [];
     let spheres = [];
@@ -989,6 +1449,10 @@ function createBalls(nbBall,scene){
     return spheres;
 }
 
+/**
+ * Creates the enemies 
+ *
+ */
 function createVillains(nbBall,scene, target){
     let spheresMesh = [];
     let spheres = [];
@@ -1009,12 +1473,17 @@ function createVillains(nbBall,scene, target){
     return spheres;
 }
 
+
+/**
+ *   Allows us to detect the collision of the player with the different elements of the game 
+ *
+ */
 function detectCollision(scene){
     
     let player = scene.getMeshByName("heroSuperball");
 
 if (level != 3) {
-    for(let i = 0; i < otherBallsMesh.length ; i++){
+    for(let i = 0; i < otherBallsMesh.length ; i++){ // Detection collision with the colored balls
         let ball =  otherBallsMesh[i];
 
         if(player.intersectsMesh(ball)){
@@ -1028,10 +1497,7 @@ if (level != 3) {
             if (player.speed<3) {
                 player.speed += 0.1;
             }
-
-            //console.log("Balles restantes : " + remainingBalls);
-            //console.log("Balles touchées : " + touchedBalls);
-            
+          
             textblock.text = "Remaining balls : " + remainingBalls;
             scene.assets.eatBall.setPosition(player.position);
             scene.assets.eatBall.setVolume(0.6);
@@ -1042,7 +1508,7 @@ if (level != 3) {
         }
     }
 
-    for(let i = 0; i < villainBallsMesh.length ; i++){
+    for(let i = 0; i < villainBallsMesh.length ; i++){  // Detection collision with the enemies
         let ball =  villainBallsMesh[i];
 
         if(player.intersectsMesh(ball)){
@@ -1059,19 +1525,14 @@ if (level != 3) {
                 scene.assets.enemy.play();
             }
             
-            //console.log(lifeHearts);
             let string = "❤❤❤❤❤";
             liveblock.text = string.substring(0,lifeHearts);
 
-            //ball.material = temporaryMaterial;
-
-
-            player.speed = 1;
+            player.speed = 2;
 
             setTimeout(() => {
                 ball.touched = false;
                 villainBallsMesh.push(ball);
-                //player.material.diffuseTexture = new BABYLON.Texture("images/spheres/snow.jpg", scene); 
             }, 5000 );
           
         }
@@ -1081,6 +1542,10 @@ if (level != 3) {
 if (level == 2) {
     let enemyBox = scene.getMeshByName("enemyBox")
     if  (player.intersectsMesh(enemyBox)) {
+        scene.assets.enemy2.setPosition(player.position);
+        scene.assets.enemy2.setVolume(2);
+        scene.assets.enemy2.play();
+
         enemyBox.position.x = Math.floor(Math.random()*(300-(-300)+1)+(-300));
         enemyBox.position.z = Math.floor(Math.random()*(300-(-300)+1)+(-300));
         if (touchedBalls > 0) {
@@ -1098,37 +1563,86 @@ if (level == 2) {
 
 }
 
+if (level==3){ // Detection collision with the final boss
+    let boss = scene.getMeshByName("finalBoss"); 
+    if(player.intersectsMesh(boss)){
+        if(!bossTouched){
+        
+        scene.assets.finalboss.setPosition(player.position);
+        scene.assets.finalboss.setVolume(2);
+        scene.assets.finalboss.play();
+    
+        lifeHearts--;
+        let string = "❤❤❤❤❤";
+        liveblock.text = string.substring(0,lifeHearts);
+        bossTouched = true;
+        
+        setTimeout(() => {
+            bossTouched = false;
+        }, 5000 );
+        }
+    }
+
+
+}
+
 
 
     /* DETECTION WITH A BONUS : */
 
     if(player.intersectsMesh(bonus1)){
-        bonus1.dispose();
-        if(lifeHearts!=5){
-            lifeHearts++;
-            let string = "❤❤❤❤❤";
-            liveblock.text = string.substring(0,lifeHearts);
+        if(!bonus1.touched){
+            bonus1.dispose();
+
+            scene.assets.bonus.setPosition(player.position);
+            scene.assets.bonus.setVolume(1.5);
+            scene.assets.bonus.play();
+
+            if(lifeHearts!=5){
+                console.log(lifeHearts);
+                lifeHearts++;
+                let string = "❤❤❤❤❤";
+                liveblock.text = string.substring(0,lifeHearts);
+            }
+            bonus1.touched = true;
         }
     }
 
     if(player.intersectsMesh(bonus2)){
-        bonus2.dispose();
+        if(!bonus2.touched){
+            bonus2.dispose();
 
-        if(lifeHearts!=5){
-            lifeHearts++;
-            let string = "❤❤❤❤❤";
-            liveblock.text = string.substring(0,lifeHearts);
-        }
+            scene.assets.bonus.setPosition(player.position);
+            scene.assets.bonus.setVolume(1.5);
+            scene.assets.bonus.play();
+
+            if(lifeHearts!=5){
+                console.log(lifeHearts);
+                lifeHearts++;
+                let string = "❤❤❤❤❤";
+                liveblock.text = string.substring(0,lifeHearts);
+            }
+            bonus2.touched = true;
+      }
     }
     
     if(player.intersectsMesh(bonus3)){
-        bonus3.dispose();
-        if(lifeHearts!=5){
-            lifeHearts++;
-            let string = "❤❤❤❤❤";
-            liveblock.text = string.substring(0,lifeHearts);
+        if(!bonus3.touched){
+            bonus3.dispose();
+
+            scene.assets.bonus.setPosition(player.position);
+            scene.assets.bonus.setVolume(1.5);
+            scene.assets.bonus.play();
+
+            if(lifeHearts!=5){
+                console.log(lifeHearts);
+                lifeHearts++;
+                let string = "❤❤❤❤❤";
+                liveblock.text = string.substring(0,lifeHearts);
+            }
+            bonus3.touched = true;
         }
-    }
+  }
 }
 
 
