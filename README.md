@@ -31,6 +31,12 @@ You can replay as much as you want to !
 - LEVEL 3 : it is the final stage. You will be fighting directly against the awful megaball ! You must throw at him as many balls as possible to exhaust him (by pressing enter). Beware, for each collision with megaball, you will lose a life point !
 - As you have a limited amount of time to finish the level, there are teleportation gates that will help you seek for balls in distress faster ! There are also bonuses that will give you a life point when there is a collision with yout ball !
 
+## GOOD POINTS OF OUR GAME :
+- Our game is original in the sense that we created an abstract environnement.
+- Our game is quite easy.
+- It is possible to custom the main settings of the game to adjust the difficulty.
+- We created a story that fits to the theme and the gameplay. 
+
 ## BUGS 
 - Sometimes the scene isn't loaded properly so there's a dark blue screen. After many attempts to solve this problem we have not found a solution. Thus, you need to refresh the page until the scene is loaded properly.
 - Also, as the scene isn't always loaded properly, we advise you to wait a few seconds before to start a level. Indeed, sometimes some balls are going though the ground. 
@@ -61,3 +67,6 @@ You can replay as much as you want to !
 ### SETTINGS
 ![settings](https://user-images.githubusercontent.com/91093212/168493850-f0a51de3-95f3-4e6b-aa8e-486edd8fb7ae.gif)
 
+## Ressources
+### Sounds : 
+https://mixkit.co/free-sound-effects/game/
